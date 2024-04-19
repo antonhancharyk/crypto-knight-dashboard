@@ -1,5 +1,7 @@
 <style></style>
 
 <div>
-  <mat-slide-toggle [checked]="active">Active</mat-slide-toggle>
+  <mat-slide-toggle [checked]="active" (change)="handleToggleStatus()"
+    >Active</mat-slide-toggle
+  >
 </div>
