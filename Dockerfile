@@ -1,6 +1,6 @@
-FROM node:21-alpine as build-step
+FROM node:21-alpine AS builder
 
-WORKDIR /app
+WORKDIR /opt/app
 
 COPY package.json package-lock.json ./
 
@@ -12,11 +12,9 @@ RUN npm run build
 
 FROM nginx:alpine
 
-COPY --from=build-step /app/dist/crypto-knight-dashboard /usr/share/nginx/html
+COPY --from=builder /opt/app/dist/crypto-knight-dashboard/browser /usr/share/nginx/html
 
-RUN rm /etc/nginx/conf.d/default.conf
-
-COPY nginx.conf /etc/nginx/conf.d
+COPY nginx.conf /etc/nginx/nginx.conf
 
 EXPOSE 80
 
