@@ -13,14 +13,14 @@ import { CommonService } from '../../services';
   styleUrl: './home.component.scss',
 })
 export class HomeComponent implements OnInit, OnDestroy {
-  active: boolean = true;
+  active: boolean = false;
   private statusSubscription: Subscription = new Subscription();
 
   constructor(private commonService: CommonService) {}
 
   ngOnInit() {
     this.statusSubscription = this.commonService.getStatus().subscribe({
-      next: (status) => (this.active = status),
+      next: (status) => (this.active = status.enabled),
       error: (err) => console.error(err),
     });
   }

@@ -8,8 +8,8 @@ export class CommonService {
 
   constructor(private http: HttpClient) {}
 
-  getStatus(): Observable<boolean> {
-    return this.http.get<boolean>(this.apiUrl + '/common/status');
+  getStatus(): Observable<{ enabled: boolean }> {
+    return this.http.get<{ enabled: boolean }>(this.apiUrl + '/common/status');
   }
 
   switchOn(): Observable<Object> {
