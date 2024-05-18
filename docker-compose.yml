@@ -10,8 +10,8 @@ services:
     volumes:
       - ./certs:/etc/nginx/certs
       - ./certs:/var/www/certbot
-    # depends_on:
-    #   - certbot
+    depends_on:
+      - certbot
   certbot:
     container_name: certbot
     image: certbot/certbot
