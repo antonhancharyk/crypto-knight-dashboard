@@ -9,6 +9,7 @@ services:
     restart: always
     volumes:
       - ./certs:/etc/nginx/certs
+      - ./certs:/var/www/certbot
     # depends_on:
     #   - certbot
   certbot:
@@ -17,4 +18,4 @@ services:
     volumes:
       - ./certs:/etc/letsencrypt
       - ./certs:/var/www/certbot
-    command: certonly --webroot --webroot-path=/var/www/certbot/ --email ant.goncharik.development@gmail.com --agree-tos --no-eff-email --force-renewal -d crypto-knight.online
+    command: certonly --webroot --webroot-path=/var/www/certbot --email ant.goncharik.development@gmail.com --agree-tos --no-eff-email --force-renewal -d crypto-knight.online -d www.crypto-knight.online
