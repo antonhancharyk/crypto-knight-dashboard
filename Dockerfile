@@ -10,11 +10,10 @@ COPY . .
 
 RUN npm run build
 
-FROM nginx:alpine
+FROM nginx:latest
 
-RUN apk update && \
-    apk add certbot cron
-    
+RUN apt update && apt install certbot cron
+
 COPY --from=builder /opt/app/dist/crypto-knight-dashboard/browser /usr/share/nginx/html
 
 COPY nginx.conf /etc/nginx/nginx.conf
