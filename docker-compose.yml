@@ -1,0 +1,19 @@
+version: "3"
+services:
+  app:
+    container_name: app
+    image: antgoncharik/crypto-knight-dashboard
+    ports:
+      - "80:80"
+      - "443:443"
+    restart: always
+    volumes:
+      - ./certs:/etc/nginx/certs
+    depends_on:
+      - certbot
+  certbot:
+    container_name: certbot
+    image: certbot/certbot
+    volumes:
+      - ./certs:/etc/letsencrypt
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
