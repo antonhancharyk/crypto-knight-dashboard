@@ -12,7 +12,7 @@ RUN npm run build
 
 FROM nginx:latest
 
-RUN apt update && apt install certbot cron
+RUN apt update && apt install -y certbot cron
 
 COPY --from=builder /opt/app/dist/crypto-knight-dashboard/browser /usr/share/nginx/html
 
