@@ -44,4 +44,4 @@ jobs:
             docker rm ${{ env.CONTAINER_NAME }} || true
             docker login -u ${{ env.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
             docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-            docker run -d -p 80:80 --restart=always --name ${{ env.CONTAINER_NAME }} ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+            docker run -d -p 80:80 --restart=always --name ${{ env.CONTAINER_NAME }} -v /etc/letsencrypt:/etc/letsencrypt -v /var/lib/letsencrypt:/var/lib/letsencrypt ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
