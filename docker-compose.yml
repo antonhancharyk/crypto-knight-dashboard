@@ -11,10 +11,10 @@ services:
       - ./certs:/etc/nginx/certs
     # depends_on:
     #   - certbot
-  # certbot:
-  #   container_name: certbot
-  #   image: certbot/certbot
-  #   volumes:
-  #     - ./certs:/etc/letsencrypt
-  #     - ./certs:/var/www/certbot
-  #   command: certonly --webroot --webroot-path=/var/www/certbot/ --email ant.goncharik.development@gmail.com --agree-tos --no-eff-email --force-renewal -d crypto-knight.online
+  certbot:
+    container_name: certbot
+    image: certbot/certbot
+    volumes:
+      - ./certs:/etc/letsencrypt
+      - ./certs:/var/www/certbot
+    command: certonly --webroot --webroot-path=/var/www/certbot/ --email ant.goncharik.development@gmail.com --agree-tos --no-eff-email --force-renewal -d crypto-knight.online
