@@ -12,8 +12,9 @@ RUN npm run build
 
 FROM nginx:alpine
 
-RUN apk update && apk add certbot cron
-
+RUN apk update && \
+    apk add certbot cron
+    
 COPY --from=builder /opt/app/dist/crypto-knight-dashboard/browser /usr/share/nginx/html
 
 COPY nginx.conf /etc/nginx/nginx.conf
