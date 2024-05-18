@@ -4,4 +4,32 @@
   <mat-slide-toggle [checked]="active" (change)="handleToggleStatus()"
     >Active</mat-slide-toggle
   >
+  <div class="tracks_container">
+    <div class="tracks">
+      <h1>Tracks</h1>
+      @for (item of activeTracks; track item) {
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>{{ item.symbol }}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>High: {{ item.highPrice }}</mat-card-content>
+        <mat-card-content>Low: {{ item.lowPrice }}</mat-card-content>
+        <mat-card-content>Date: {{ item.createdAt }}</mat-card-content>
+      </mat-card>
+      }
+    </div>
+    <div class="tracks">
+      <h1>Not tracks</h1>
+      @for (item of inactiveTracks; track item) {
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>{{ item.symbol }}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>High: {{ item.highPrice }}</mat-card-content>
+        <mat-card-content>Low: {{ item.lowPrice }}</mat-card-content>
+        <mat-card-content>Date: {{ item.createdAt }}</mat-card-content>
+      </mat-card>
+      }
+    </div>
+  </div>
 </div>
