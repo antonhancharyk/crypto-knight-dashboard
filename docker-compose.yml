@@ -9,8 +9,8 @@ services:
     restart: always
     volumes:
       - ./certs:/etc/nginx/certs
-    depends_on:
-      - certbot
+    # depends_on:
+    #   - certbot
   # certbot:
   #   container_name: certbot
   #   image: certbot/certbot
