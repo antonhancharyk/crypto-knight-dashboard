@@ -14,7 +14,7 @@ interface TrackResponse {
 
 @Injectable()
 export class TracksServices {
-  private apiUrl = 'http://api.crypto-knight.online';
+  private apiUrl = 'https://api.crypto-knight.online';
 
   constructor(private http: HttpClient) {}
 
