@@ -1,9 +1,36 @@
 <style></style>
 
-<div>
-  <mat-slide-toggle [checked]="active" (change)="handleToggleStatus()"
-    >Active</mat-slide-toggle
-  >
+<div class="container">
+  <div>
+    <mat-slide-toggle
+      [checked]="active"
+      (change)="handleToggleStatus()"
+      [disabled]="isLoadingStatus"
+      >Active</mat-slide-toggle
+    >
+  </div>
+  <div class="filter">
+    <mat-form-field>
+      <mat-label>Date</mat-label>
+      <mat-date-range-input [formGroup]="range" [rangePicker]="picker">
+        <input matStartDate formControlName="from" placeholder="From" />
+        <input matEndDate formControlName="to" placeholder="To" />
+      </mat-date-range-input>
+      <mat-datepicker-toggle
+        matIconSuffix
+        [for]="picker"
+      ></mat-datepicker-toggle>
+      <mat-date-range-picker #picker></mat-date-range-picker>
+    </mat-form-field>
+    <button
+      mat-stroked-button
+      color="primary"
+      (click)="handleClickGetTracks()"
+      [disabled]="isLoadingTracks"
+    >
+      Get tracks
+    </button>
+  </div>
   <div class="tracks_container">
     <div class="tracks">
       <h1>Tracks</h1>
