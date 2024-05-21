@@ -64,7 +64,7 @@
       </div>
       <div class="tracks">
         <h1>Not tracks</h1>
-        @for (item of inactiveTracks; track item.symbol) {
+        @for (item of inactiveTracks; track item.symbol; let idx = $index) {
         <mat-card>
           <mat-card-header>
             <mat-card-title
@@ -80,7 +80,11 @@
           >
           <mat-card-content>Date: {{ item.createdAt }}</mat-card-content>
         </mat-card>
-        }
+        @if ((inactiveTracks[idx+1] || item).createdAt !== item.createdAt) {
+        <div
+          [style]="{ width: '100%', height: '2px', backgroundColor: '#000000' }"
+        ></div>
+        } }
       </div>
     </div>
   </div>
