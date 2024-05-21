@@ -14,8 +14,15 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatListModule } from '@angular/material/list';
 
-import { CommonService, TracksServices } from '../../services';
+import {
+  CommonService,
+  TracksServices,
+  BinancePriceService,
+} from '../../services';
 import { Track } from '../../entities/track';
 
 @Component({
@@ -30,14 +37,22 @@ import { Track } from '../../entities/track';
     ReactiveFormsModule,
     JsonPipe,
     MatButtonModule,
+    MatProgressSpinnerModule,
+    MatDividerModule,
   ],
-  providers: [CommonService, TracksServices, provideNativeDateAdapter()],
+  providers: [
+    CommonService,
+    TracksServices,
+    provideNativeDateAdapter(),
+    BinancePriceService,
+  ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })
 export class HomeComponent implements OnInit, OnDestroy {
   private statusSubscription: Subscription = new Subscription();
   private tracksSubscription: Subscription = new Subscription();
+  private pricesSubscription: Subscription = new Subscription();
   active: boolean = false;
   tracks: Track[] = [];
   activeTracks: Track[] = [];
@@ -48,20 +63,25 @@ export class HomeComponent implements OnInit, OnDestroy {
   });
   isLoadingStatus: boolean = false;
   isLoadingTracks: boolean = false;
+  isLoadingPrices: boolean = false;
+  prices: { [key: string]: number } = {};
 
   constructor(
     private commonService: CommonService,
-    private tracksService: TracksServices
+    private tracksService: TracksServices,
+    private binancePriceService: BinancePriceService
   ) {}
 
   ngOnInit() {
     this.getStatus();
     this.getTracks();
+    this.getPrices();
   }
 
   ngOnDestroy() {
     this.statusSubscription.unsubscribe();
     this.tracksSubscription.unsubscribe();
+    this.pricesSubscription.unsubscribe();
   }
 
   getStatus() {
@@ -155,11 +175,30 @@ export class HomeComponent implements OnInit, OnDestroy {
       });
   }
 
+  getPrices() {
+    this.isLoadingPrices = true;
+
+    this.pricesSubscription = this.binancePriceService.getPrices().subscribe({
+      next: (prices) => {
+        prices.forEach((price) => {
+          this.prices[price.symbol] = price.price;
+        });
+
+        this.isLoadingPrices = false;
+      },
+      error: (err) => {
+        this.isLoadingPrices = false;
+        console.error(err);
+      },
+    });
+  }
+
   handleToggleStatus() {
     this.toggleStatus();
   }
 
   handleClickGetTracks() {
     this.getTracks();
+    this.getPrices();
   }
 }

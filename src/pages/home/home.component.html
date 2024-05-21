@@ -1,62 +1,88 @@
 <style></style>
 
 <div class="container">
-  <div>
-    <mat-slide-toggle
-      [checked]="active"
-      (change)="handleToggleStatus()"
-      [disabled]="isLoadingStatus"
-      >Active</mat-slide-toggle
-    >
+  @if (isLoadingStatus && isLoadingTracks && isLoadingPrices) {
+  <div class="container_spinner">
+    <mat-spinner></mat-spinner>
   </div>
-  <div class="filter">
-    <mat-form-field>
-      <mat-label>Date</mat-label>
-      <mat-date-range-input [formGroup]="range" [rangePicker]="picker">
-        <input matStartDate formControlName="from" placeholder="From" />
-        <input matEndDate formControlName="to" placeholder="To" />
-      </mat-date-range-input>
-      <mat-datepicker-toggle
-        matIconSuffix
-        [for]="picker"
-      ></mat-datepicker-toggle>
-      <mat-date-range-picker #picker></mat-date-range-picker>
-    </mat-form-field>
-    <button
-      mat-stroked-button
-      color="primary"
-      (click)="handleClickGetTracks()"
-      [disabled]="isLoadingTracks"
-    >
-      Get tracks
-    </button>
-  </div>
-  <div class="tracks_container">
-    <div class="tracks">
-      <h1>Tracks</h1>
-      @for (item of activeTracks; track item) {
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>{{ item.symbol }}</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>High: {{ item.highPrice }}</mat-card-content>
-        <mat-card-content>Low: {{ item.lowPrice }}</mat-card-content>
-        <mat-card-content>Date: {{ item.createdAt }}</mat-card-content>
-      </mat-card>
-      }
+  } @else {
+  <div class="container1">
+    <div>
+      <mat-slide-toggle
+        [checked]="active"
+        (change)="handleToggleStatus()"
+        [disabled]="isLoadingStatus"
+        >Active</mat-slide-toggle
+      >
     </div>
-    <div class="tracks">
-      <h1>Not tracks</h1>
-      @for (item of inactiveTracks; track item) {
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>{{ item.symbol }}</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>High: {{ item.highPrice }}</mat-card-content>
-        <mat-card-content>Low: {{ item.lowPrice }}</mat-card-content>
-        <mat-card-content>Date: {{ item.createdAt }}</mat-card-content>
-      </mat-card>
-      }
+    <div class="filter">
+      <mat-form-field>
+        <mat-label>Date</mat-label>
+        <mat-date-range-input [formGroup]="range" [rangePicker]="picker">
+          <input matStartDate formControlName="from" placeholder="From" />
+          <input matEndDate formControlName="to" placeholder="To" />
+        </mat-date-range-input>
+        <mat-datepicker-toggle
+          matIconSuffix
+          [for]="picker"
+        ></mat-datepicker-toggle>
+        <mat-date-range-picker #picker></mat-date-range-picker>
+      </mat-form-field>
+      <button
+        mat-stroked-button
+        color="primary"
+        (click)="handleClickGetTracks()"
+        [disabled]="isLoadingTracks"
+      >
+        Get tracks
+      </button>
+    </div>
+    <div class="container_tracks">
+      <div class="tracks">
+        <h1>Tracks</h1>
+        @for (item of activeTracks; track item.symbol; let idx = $index) {
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title
+              ><span [style]="{ color: item.symbol === 'BTCUSDT' && 'red' }">{{
+                item.symbol
+              }}</span></mat-card-title
+            >
+          </mat-card-header>
+          <mat-card-content>High: {{ item.highPrice }}</mat-card-content>
+          <mat-card-content>Low: {{ item.lowPrice }}</mat-card-content>
+          <mat-card-content
+            >Current price: {{ prices[item.symbol] }}</mat-card-content
+          >
+          <mat-card-content>Date: {{ item.createdAt }}</mat-card-content>
+        </mat-card>
+        @if ((activeTracks[idx+1] || item).createdAt !== item.createdAt) {
+        <div
+          [style]="{ width: '100%', height: '2px', backgroundColor: '#c4c6d0' }"
+        ></div>
+        } }
+      </div>
+      <div class="tracks">
+        <h1>Not tracks</h1>
+        @for (item of inactiveTracks; track item.symbol) {
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title
+              ><span [style]="{ color: item.symbol === 'BTCUSDT' && 'red' }">{{
+                item.symbol
+              }}</span></mat-card-title
+            >
+            <mat-card-content>High: {{ item.highPrice }}</mat-card-content>
+            <mat-card-content>Low: {{ item.lowPrice }}</mat-card-content>
+            <mat-card-content
+              >Current price: {{ prices[item.symbol] }}</mat-card-content
+            >
+          </mat-card-header>
+          <mat-card-content>Date: {{ item.createdAt }}</mat-card-content>
+        </mat-card>
+        }
+      </div>
     </div>
   </div>
+  }
 </div>
