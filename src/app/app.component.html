@@ -31,6 +31,7 @@
       [fontIcon]="drawer.opened ? 'menu_open' : 'menu'"
     ></mat-icon>
   </button>
+  <header [style]="{ height: '36px' }"></header>
   <router-outlet></router-outlet>
   <mat-drawer #drawer mode="side">
     <div class="list">
