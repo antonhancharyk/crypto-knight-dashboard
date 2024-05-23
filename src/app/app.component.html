@@ -1,10 +1,41 @@
 <style>
-  .app {
-    height: 100vh;
-    padding: 1rem;
+  .btn {
+    float: right;
+  }
+
+  .list {
+    display: flex;
+    flex-direction: column;
+    min-width: 200px;
+
+    a {
+      display: flex;
+      align-items: center;
+      height: 2rem;
+      padding: 1rem;
+      text-decoration: none;
+      color: black;
+      cursor: pointer;
+    }
+    a:hover {
+      background-color: var(--mdc-filled-text-field-container-color);
+    }
   }
 </style>
 
-<div class="app">
+<mat-drawer-container autosize>
+  <button type="button" mat-button (click)="drawer.toggle()" class="btn">
+    <mat-icon
+      aria-hidden="false"
+      aria-label="Example home icon"
+      [fontIcon]="drawer.opened ? 'menu_open' : 'menu'"
+    ></mat-icon>
+  </button>
   <router-outlet></router-outlet>
-</div>
+  <mat-drawer #drawer mode="side">
+    <div class="list">
+      <a routerLink="">Home</a>
+      <a routerLink="/settings">Settings</a>
+    </div>
+  </mat-drawer>
+</mat-drawer-container>

@@ -1,5 +1,4 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { Subscription } from 'rxjs';
 import { MatCardModule } from '@angular/material/card';
 import { DateTime } from 'luxon';
@@ -16,7 +15,6 @@ import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
-import { MatListModule } from '@angular/material/list';
 
 import {
   CommonService,
@@ -24,12 +22,12 @@ import {
   BinancePriceService,
 } from '../../services';
 import { Track } from '../../entities/track';
+import { Q1, Q3 } from '../../constants';
 
 @Component({
   selector: 'app-home',
   standalone: true,
   imports: [
-    MatSlideToggleModule,
     MatCardModule,
     MatFormFieldModule,
     MatDatepickerModule,
@@ -50,10 +48,8 @@ import { Track } from '../../entities/track';
   styleUrl: './home.component.scss',
 })
 export class HomeComponent implements OnInit, OnDestroy {
-  private statusSubscription: Subscription = new Subscription();
   private tracksSubscription: Subscription = new Subscription();
   private pricesSubscription: Subscription = new Subscription();
-  active: boolean = false;
   tracks: Track[] = [];
   activeTracks: Track[] = [];
   inactiveTracks: Track[] = [];
@@ -61,84 +57,38 @@ export class HomeComponent implements OnInit, OnDestroy {
     from: new FormControl<Date | null>(new Date()),
     to: new FormControl<Date | null>(new Date()),
   });
-  isLoadingStatus: boolean = false;
   isLoadingTracks: boolean = false;
   isLoadingPrices: boolean = false;
   prices: { [key: string]: number } = {};
 
   constructor(
-    private commonService: CommonService,
     private tracksService: TracksServices,
     private binancePriceService: BinancePriceService
   ) {}
 
   ngOnInit() {
-    this.getStatus();
     this.getTracks();
-    this.getPrices();
   }
 
   ngOnDestroy() {
-    this.statusSubscription.unsubscribe();
     this.tracksSubscription.unsubscribe();
     this.pricesSubscription.unsubscribe();
-  }
-
-  getStatus() {
-    this.isLoadingStatus = true;
-
-    this.statusSubscription = this.commonService.getStatus().subscribe({
-      next: (status) => {
-        this.active = status.enabled;
-
-        this.isLoadingStatus = false;
-      },
-      error: (err) => {
-        this.isLoadingStatus = false;
-        console.error(err);
-      },
-    });
-  }
-
-  toggleStatus() {
-    this.isLoadingStatus = true;
-
-    this.active = !this.active;
-
-    if (this.active) {
-      this.commonService.switchOn().subscribe({
-        next: () => {
-          this.isLoadingStatus = false;
-        },
-        error: (err) => {
-          this.isLoadingStatus = false;
-          console.error(err);
-        },
-      });
-    } else {
-      this.commonService.switchOff().subscribe({
-        next: () => {
-          this.isLoadingStatus = false;
-        },
-        error: (err) => {
-          this.isLoadingStatus = false;
-          console.error(err);
-        },
-      });
-    }
   }
 
   getTracks() {
     this.isLoadingTracks = true;
 
+    const from = DateTime.fromJSDate(this.range.value?.from ?? new Date())
+      .startOf('day')
+      .toFormat('yyyy-MM-dd HH:mm:ss');
+    const to = DateTime.fromJSDate(this.range.value?.to ?? new Date())
+      .endOf('day')
+      .toFormat('yyyy-MM-dd HH:mm:ss');
+
     this.tracksSubscription = this.tracksService
       .getTracks({
-        from: DateTime.fromJSDate(this.range.value?.from ?? new Date())
-          .startOf('day')
-          .toFormat('yyyy-MM-dd HH:mm:ss'),
-        to: DateTime.fromJSDate(this.range.value?.to ?? new Date())
-          .endOf('day')
-          .toFormat('yyyy-MM-dd HH:mm:ss'),
+        from,
+        to,
       })
       .subscribe({
         next: (res) => {
@@ -167,6 +117,8 @@ export class HomeComponent implements OnInit, OnDestroy {
             });
 
           this.isLoadingTracks = false;
+
+          this.getPrices();
         },
         error: (err) => {
           this.isLoadingTracks = false;
@@ -182,6 +134,21 @@ export class HomeComponent implements OnInit, OnDestroy {
       next: (prices) => {
         prices.forEach((price) => {
           this.prices[price.symbol] = price.price;
+
+          const track = this.activeTracks.find((item) => {
+            return item.symbol === price.symbol;
+          });
+          if (track) {
+            const f = (track.highPrice - track.lowPrice) / 100;
+            const q1 = track.lowPrice + f * Q1;
+            const q3 = track.lowPrice + f * Q3;
+            if (price.price <= q1) {
+              track.direction = 'red';
+            }
+            if (price.price >= q3) {
+              track.direction = 'green';
+            }
+          }
         });
 
         this.isLoadingPrices = false;
@@ -193,12 +160,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
   }
 
-  handleToggleStatus() {
-    this.toggleStatus();
-  }
-
   handleClickGetTracks() {
     this.getTracks();
-    this.getPrices();
   }
 }

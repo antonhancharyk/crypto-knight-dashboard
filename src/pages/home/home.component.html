@@ -1,20 +1,10 @@
-<style></style>
-
 <div class="container">
-  @if (isLoadingStatus && isLoadingTracks && isLoadingPrices) {
+  @if (isLoadingTracks || isLoadingPrices) {
   <div class="container_spinner">
     <mat-spinner></mat-spinner>
   </div>
   } @else {
   <div class="container1">
-    <div>
-      <mat-slide-toggle
-        [checked]="active"
-        (change)="handleToggleStatus()"
-        [disabled]="isLoadingStatus"
-        >Active</mat-slide-toggle
-      >
-    </div>
     <div class="filter">
       <mat-form-field>
         <mat-label>Date</mat-label>
@@ -44,9 +34,13 @@
         <mat-card>
           <mat-card-header>
             <mat-card-title
-              ><span [style]="{ color: item.symbol === 'BTCUSDT' && 'red' }">{{
-                item.symbol
-              }}</span></mat-card-title
+              ><span
+                [style]="{
+                  color: item.direction,
+                  fontSize: item.symbol === 'BTCUSDT' && '32px'
+                }"
+                >{{ item.symbol }}</span
+              ></mat-card-title
             >
           </mat-card-header>
           <mat-card-content>High: {{ item.highPrice }}</mat-card-content>
@@ -68,9 +62,12 @@
         <mat-card>
           <mat-card-header>
             <mat-card-title
-              ><span [style]="{ color: item.symbol === 'BTCUSDT' && 'red' }">{{
-                item.symbol
-              }}</span></mat-card-title
+              ><span
+                [style]="{
+                  fontSize: item.symbol === 'BTCUSDT' && '32px'
+                }"
+                >{{ item.symbol }}</span
+              ></mat-card-title
             >
           </mat-card-header>
           <mat-card-content>High: {{ item.highPrice }}</mat-card-content>

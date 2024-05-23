@@ -3,4 +3,5 @@ export interface Track {
   highPrice: number;
   lowPrice: number;
   createdAt: string;
+  direction?: 'green' | 'red';
 }

@@ -1,0 +1,14 @@
+<div class="container">
+  @if (isLoadingStatus) {
+  <div class="container_spinner">
+    <mat-spinner></mat-spinner>
+  </div>
+  } @else {
+  <mat-slide-toggle
+    [checked]="active"
+    (change)="handleToggleStatus()"
+    [disabled]="isLoadingStatus"
+    >Active</mat-slide-toggle
+  >
+  }
+</div>
