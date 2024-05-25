@@ -31,7 +31,7 @@
       <div class="tracks">
         <h1>Tracks</h1>
         @for (item of activeTracks; track item.symbol; let idx = $index) {
-        <mat-card>
+        <mat-card class="mat-card">
           <mat-card-header>
             <mat-card-title
               ><span
@@ -48,7 +48,12 @@
           <mat-card-content
             >Current price: {{ prices[item.symbol] }}</mat-card-content
           >
-          <mat-card-content>Date: {{ item.createdAt }}</mat-card-content>
+          <mat-card-content
+            >Date: {{ item.createdAt.slice(0, 10) }}</mat-card-content
+          >
+          <mat-card-content
+            >Time: {{ item.createdAt.slice(11) }}</mat-card-content
+          >
         </mat-card>
         @if ((activeTracks[idx+1] || item).createdAt !== item.createdAt) {
         <div
@@ -59,7 +64,7 @@
       <div class="tracks">
         <h1>Not tracks</h1>
         @for (item of inactiveTracks; track item.symbol; let idx = $index) {
-        <mat-card>
+        <mat-card class="mat-card">
           <mat-card-header>
             <mat-card-title
               ><span
@@ -70,12 +75,19 @@
               ></mat-card-title
             >
           </mat-card-header>
-          <mat-card-content>High: {{ item.highPrice }}</mat-card-content>
-          <mat-card-content>Low: {{ item.lowPrice }}</mat-card-content>
           <mat-card-content
             >Current price: {{ prices[item.symbol] }}</mat-card-content
           >
-          <mat-card-content>Date: {{ item.createdAt }}</mat-card-content>
+          <mat-card-content
+            >Date: {{ item.createdAt.slice(0, 10) }}</mat-card-content
+          >
+          <mat-card-content
+            >Time: {{ item.createdAt.slice(11) }}</mat-card-content
+          >
+          <mat-card-content>Causes:</mat-card-content>
+          @for (c of item.causes; track $index) {
+          <mat-card-content>{{ $index + 1 }}) {{ c }}</mat-card-content>
+          }
         </mat-card>
         @if ((inactiveTracks[idx+1] || item).createdAt !== item.createdAt) {
         <div

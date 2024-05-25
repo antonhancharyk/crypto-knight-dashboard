@@ -9,6 +9,7 @@ interface TrackResponse {
   symbol: string;
   high_price: number;
   low_price: number;
+  causes: string[];
   created_at: string;
 }
 
@@ -41,6 +42,7 @@ export class TracksServices {
             highPrice: track.high_price,
             lowPrice: track.low_price,
             createdAt: track.created_at,
+            causes: track.causes,
           }));
         })
       );

@@ -3,5 +3,6 @@ export interface Track {
   highPrice: number;
   lowPrice: number;
   createdAt: string;
+  causes: string[];
   direction?: 'green' | 'red';
 }
