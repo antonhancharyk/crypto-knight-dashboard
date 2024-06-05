@@ -49,6 +49,10 @@
             >Current price: {{ prices[item.symbol] }}</mat-card-content
           >
           <mat-card-content
+            >High stop: {{ item.highStopPrice }}</mat-card-content
+          >
+          <mat-card-content>Low stop: {{ item.lowStopPrice }}</mat-card-content>
+          <mat-card-content
             >Date: {{ item.createdAt.slice(0, 10) }}</mat-card-content
           >
           <mat-card-content

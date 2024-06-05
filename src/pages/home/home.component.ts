@@ -102,7 +102,17 @@ export class HomeComponent implements OnInit, OnDestroy {
               const dateInZone = date.setZone('UTC+3');
               const createdAt = dateInZone.toFormat('yyyy-MM-dd HH:mm');
 
-              return { ...item, createdAt };
+              const [lowStopPrice, highStopPrice] = this.getStopLossPrices(
+                item.lowPrice,
+                item.highPrice
+              );
+
+              return {
+                ...item,
+                createdAt,
+                lowStopPrice: +lowStopPrice.toFixed(5),
+                highStopPrice: +highStopPrice.toFixed(5),
+              };
             });
           this.inactiveTracks = res
             .filter((item) => {
@@ -162,5 +172,12 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   handleClickGetTracks() {
     this.getTracks();
+  }
+
+  private getStopLossPrices(lowPrice: number, highPrice: number) {
+    return [
+      lowPrice + (lowPrice * 1.1) / 100,
+      highPrice - (highPrice * 1.1) / 100,
+    ];
   }
 }
