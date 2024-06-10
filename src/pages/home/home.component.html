@@ -39,7 +39,7 @@
                   color: item.direction,
                   fontSize: item.symbol === 'BTCUSDT' && '32px'
                 }"
-                >{{ item.symbol }}</span
+                >{{ item.symbol.slice(0, -4) }}</span
               ></mat-card-title
             >
           </mat-card-header>
@@ -75,7 +75,7 @@
                 [style]="{
                   fontSize: item.symbol === 'BTCUSDT' && '32px'
                 }"
-                >{{ item.symbol }}</span
+                >{{ item.symbol.slice(0, -4) }}</span
               ></mat-card-title
             >
           </mat-card-header>
