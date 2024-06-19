@@ -113,9 +113,6 @@ export class HomeComponent implements OnInit, OnDestroy {
                 lowStopPrice: +lowStopPrice.toFixed(5),
                 highStopPrice: +highStopPrice.toFixed(5),
               };
-            })
-            .sort((a, b) => {
-              return a.symbol.localeCompare(b.symbol);
             });
           this.inactiveTracks = res
             .filter((item) => {
@@ -127,9 +124,6 @@ export class HomeComponent implements OnInit, OnDestroy {
               const createdAt = dateInZone.toFormat('yyyy-MM-dd HH:mm');
 
               return { ...item, createdAt };
-            })
-            .sort((a, b) => {
-              return a.symbol.localeCompare(b.symbol);
             });
 
           this.isLoadingTracks = false;
