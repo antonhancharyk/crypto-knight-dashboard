@@ -63,7 +63,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   isLoadingTracks: boolean = false;
   isLoadingPrices: boolean = false;
   prices: { [key: string]: number } = {};
-  symbols = SYMBOLS;
+  symbols = SYMBOLS.sort();
   symbolControl = new FormControl<string>('');
 
   constructor(
