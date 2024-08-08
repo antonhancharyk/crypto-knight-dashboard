@@ -20,6 +20,7 @@ import {
   CommonService,
   TracksServices,
   BinancePriceService,
+  AuthService,
 } from '../../services';
 import { Track } from '../../entities/track';
 import { Q1, Q3 } from '../../constants';
@@ -63,11 +64,14 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   constructor(
     private tracksService: TracksServices,
-    private binancePriceService: BinancePriceService
+    private binancePriceService: BinancePriceService,
+    private authService: AuthService
   ) {}
 
   ngOnInit() {
-    this.getTracks();
+    if (this.authService.isActive) {
+      // this.getTracks();
+    }
   }
 
   ngOnDestroy() {
@@ -94,9 +98,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         next: (res) => {
           this.tracks = res;
           this.activeTracks = res
-            .filter((item) => {
-              return item.highPrice > 0 && item.lowPrice > 0;
-            })
+            // .filter((item) => {
+            //   return item.highPrice > 0 && item.lowPrice > 0;
+            // })
             .map((item) => {
               const date = DateTime.fromISO(item.createdAt, { zone: 'utc' });
               const dateInZone = date.setZone('UTC+3');
@@ -114,17 +118,17 @@ export class HomeComponent implements OnInit, OnDestroy {
                 highStopPrice: +highStopPrice.toFixed(5),
               };
             });
-          this.inactiveTracks = res
-            .filter((item) => {
-              return item.highPrice === 0 && item.lowPrice === 0;
-            })
-            .map((item) => {
-              const date = DateTime.fromISO(item.createdAt, { zone: 'utc' });
-              const dateInZone = date.setZone('UTC+3');
-              const createdAt = dateInZone.toFormat('yyyy-MM-dd HH:mm');
+          // this.inactiveTracks = res
+          //   .filter((item) => {
+          //     return item.highPrice === 0 && item.lowPrice === 0;
+          //   })
+          //   .map((item) => {
+          //     const date = DateTime.fromISO(item.createdAt, { zone: 'utc' });
+          //     const dateInZone = date.setZone('UTC+3');
+          //     const createdAt = dateInZone.toFormat('yyyy-MM-dd HH:mm');
 
-              return { ...item, createdAt };
-            });
+          //     return { ...item, createdAt };
+          //   });
 
           this.isLoadingTracks = false;
 
@@ -175,9 +179,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   private getStopLossPrices(lowPrice: number, highPrice: number) {
-    return [
-      lowPrice + (lowPrice * 1.1) / 100,
-      highPrice - (highPrice * 1.1) / 100,
-    ];
+    return [lowPrice + (lowPrice * 3) / 100, highPrice - (highPrice * 3) / 100];
   }
 }

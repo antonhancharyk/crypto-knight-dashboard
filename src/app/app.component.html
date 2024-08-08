@@ -23,6 +23,11 @@
   }
 </style>
 
+@if (isLoading) {
+<div class="container_spinner">
+  <mat-spinner></mat-spinner>
+</div>
+} @else {
 <mat-drawer-container autosize>
   <button type="button" mat-button (click)="drawer.toggle()" class="btn">
     <mat-icon
@@ -40,3 +45,4 @@
     </div>
   </mat-drawer>
 </mat-drawer-container>
+}
