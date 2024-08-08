@@ -15,6 +15,7 @@ import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatSelectModule } from '@angular/material/select';
 
 import {
   CommonService,
@@ -23,7 +24,7 @@ import {
   AuthService,
 } from '../../services';
 import { Track } from '../../entities/track';
-import { Q1, Q3 } from '../../constants';
+import { Q1, Q3, SYMBOLS } from '../../constants';
 
 @Component({
   selector: 'app-home',
@@ -38,6 +39,7 @@ import { Q1, Q3 } from '../../constants';
     MatButtonModule,
     MatProgressSpinnerModule,
     MatDividerModule,
+    MatSelectModule,
   ],
   providers: [
     CommonService,
@@ -61,6 +63,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   isLoadingTracks: boolean = false;
   isLoadingPrices: boolean = false;
   prices: { [key: string]: number } = {};
+  symbols = SYMBOLS;
+  symbolControl = new FormControl<string>('');
 
   constructor(
     private tracksService: TracksServices,
@@ -88,47 +92,34 @@ export class HomeComponent implements OnInit, OnDestroy {
     const to = DateTime.fromJSDate(this.range.value?.to ?? new Date())
       .endOf('day')
       .toFormat('yyyy-MM-dd HH:mm:ss');
+    const symbol = this.symbolControl.value ?? '';
 
     this.tracksSubscription = this.tracksService
       .getTracks({
         from,
         to,
+        symbol,
       })
       .subscribe({
         next: (res) => {
           this.tracks = res;
-          this.activeTracks = res
-            // .filter((item) => {
-            //   return item.highPrice > 0 && item.lowPrice > 0;
-            // })
-            .map((item) => {
-              const date = DateTime.fromISO(item.createdAt, { zone: 'utc' });
-              const dateInZone = date.setZone('UTC+3');
-              const createdAt = dateInZone.toFormat('yyyy-MM-dd HH:mm');
+          this.activeTracks = res.map((item) => {
+            const date = DateTime.fromISO(item.createdAt, { zone: 'utc' });
+            const dateInZone = date.setZone('UTC+3');
+            const createdAt = dateInZone.toFormat('yyyy-MM-dd HH:mm');
 
-              const [lowStopPrice, highStopPrice] = this.getStopLossPrices(
-                item.lowPrice,
-                item.highPrice
-              );
+            const [lowStopPrice, highStopPrice] = this.getStopLossPrices(
+              item.lowPrice,
+              item.highPrice
+            );
 
-              return {
-                ...item,
-                createdAt,
-                lowStopPrice: +lowStopPrice.toFixed(5),
-                highStopPrice: +highStopPrice.toFixed(5),
-              };
-            });
-          // this.inactiveTracks = res
-          //   .filter((item) => {
-          //     return item.highPrice === 0 && item.lowPrice === 0;
-          //   })
-          //   .map((item) => {
-          //     const date = DateTime.fromISO(item.createdAt, { zone: 'utc' });
-          //     const dateInZone = date.setZone('UTC+3');
-          //     const createdAt = dateInZone.toFormat('yyyy-MM-dd HH:mm');
-
-          //     return { ...item, createdAt };
-          //   });
+            return {
+              ...item,
+              createdAt,
+              lowStopPrice: +lowStopPrice.toFixed(5),
+              highStopPrice: +highStopPrice.toFixed(5),
+            };
+          });
 
           this.isLoadingTracks = false;
 
