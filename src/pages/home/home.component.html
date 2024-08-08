@@ -22,7 +22,7 @@
         <mat-label>Symbol</mat-label>
         <mat-select [formControl]="symbolControl">
           @for (symbol of symbols; track symbol) {
-          <mat-option [value]="symbol">{{ symbol }}</mat-option>
+          <mat-option [value]="symbol">{{ symbol.slice(0, -4) }}</mat-option>
           }
         </mat-select>
       </mat-form-field>
