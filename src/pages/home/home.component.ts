@@ -16,6 +16,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatSelectModule } from '@angular/material/select';
+import { MatIconModule } from '@angular/material/icon';
 
 import {
   CommonService,
@@ -40,6 +41,7 @@ import { Q1, Q3, SYMBOLS } from '../../constants';
     MatProgressSpinnerModule,
     MatDividerModule,
     MatSelectModule,
+    MatIconModule,
   ],
   providers: [
     CommonService,
@@ -171,5 +173,9 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   private getStopLossPrices(lowPrice: number, highPrice: number) {
     return [lowPrice + (lowPrice * 3) / 100, highPrice - (highPrice * 3) / 100];
+  }
+
+  clearSymbol() {
+    this.symbolControl.reset();
   }
 }
