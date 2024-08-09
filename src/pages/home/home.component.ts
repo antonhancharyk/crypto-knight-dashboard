@@ -17,6 +17,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 import {
   CommonService,
@@ -42,6 +43,7 @@ import { Q1, Q3, SYMBOLS } from '../../constants';
     MatDividerModule,
     MatSelectModule,
     MatIconModule,
+    MatCheckboxModule,
   ],
   providers: [
     CommonService,
@@ -67,6 +69,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   prices: { [key: string]: number } = {};
   symbols = SYMBOLS.sort();
   symbolControl = new FormControl<string>('');
+  fullControl = new FormControl(true);
 
   constructor(
     private tracksService: TracksServices,
@@ -95,12 +98,14 @@ export class HomeComponent implements OnInit, OnDestroy {
       .endOf('day')
       .toFormat('yyyy-MM-dd HH:mm:ss');
     const symbol = this.symbolControl.value ?? '';
+    const full = this.fullControl.value ?? true;
 
     this.tracksSubscription = this.tracksService
       .getTracks({
         from,
         to,
         symbol,
+        full,
       })
       .subscribe({
         next: (res) => {

@@ -17,6 +17,7 @@ interface GetTracksParams {
   from: string;
   to: string;
   symbol: string;
+  full: boolean;
 }
 
 @Injectable()
