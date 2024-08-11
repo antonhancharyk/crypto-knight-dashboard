@@ -69,7 +69,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   prices: { [key: string]: number } = {};
   symbols = SYMBOLS.sort();
   symbolControl = new FormControl<string>('');
-  fullControl = new FormControl(true);
+  fullControl = new FormControl(false);
 
   constructor(
     private tracksService: TracksServices,

@@ -25,8 +25,8 @@
           <mat-option [value]="symbol">{{ symbol.slice(0, -4) }}</mat-option>
           }
         </mat-select>
+        <mat-icon matSuffix (click)="clearSymbol()">clear</mat-icon>
       </mat-form-field>
-      <mat-icon matSuffix (click)="clearSymbol()">clear</mat-icon>
       <mat-checkbox [formControl]="fullControl">Full</mat-checkbox>
       <button
         mat-stroked-button
@@ -39,7 +39,6 @@
     </div>
     <div class="container_tracks">
       <div class="tracks">
-        <h1>Tracks</h1>
         @for (item of activeTracks; track item.symbol; let idx = $index) {
         <mat-card class="mat-card">
           <mat-card-header>
@@ -53,21 +52,23 @@
               ></mat-card-title
             >
           </mat-card-header>
-          <mat-card-content>High: {{ item.highPrice }}</mat-card-content>
-          <mat-card-content>Low: {{ item.lowPrice }}</mat-card-content>
-          <mat-card-content
-            >Current price: {{ prices[item.symbol] }}</mat-card-content
-          >
-          <mat-card-content
-            >High stop: {{ item.highStopPrice }}</mat-card-content
-          >
-          <mat-card-content>Low stop: {{ item.lowStopPrice }}</mat-card-content>
-          <mat-card-content
-            >Date: {{ item.createdAt.slice(0, 10) }}</mat-card-content
-          >
-          <mat-card-content
-            >Time: {{ item.createdAt.slice(11) }}</mat-card-content
-          >
+          <div class="container_data">
+            <div>
+              <mat-card-content>H: {{ item.highPrice }}</mat-card-content>
+              <mat-card-content>L: {{ item.lowPrice }}</mat-card-content>
+              <mat-card-content>P: {{ prices[item.symbol] }}</mat-card-content>
+            </div>
+            <div>
+              <mat-card-content>Hs: {{ item.highStopPrice }}</mat-card-content>
+              <mat-card-content>Ls: {{ item.lowStopPrice }}</mat-card-content>
+              <mat-card-content
+                >D: {{ item.createdAt.slice(0, 10) }}</mat-card-content
+              >
+              <mat-card-content
+                >T: {{ item.createdAt.slice(11) }}</mat-card-content
+              >
+            </div>
+          </div>
         </mat-card>
         @if ((activeTracks[idx+1] || item).createdAt !== item.createdAt) {
         <div
