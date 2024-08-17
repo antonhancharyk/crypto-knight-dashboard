@@ -7,4 +7,5 @@ export interface Track {
   direction?: 'green' | 'red';
   lowStopPrice?: number;
   highStopPrice?: number;
+  isOrder: boolean
 }
