@@ -11,7 +11,7 @@ interface TrackResponse {
   low_price: number;
   causes: string[];
   created_at: string;
-  isOrder: boolean
+  is_order: boolean
 }
 
 interface GetTracksParams {
@@ -46,7 +46,7 @@ export class TracksServices {
             lowPrice: track.low_price,
             createdAt: track.created_at,
             causes: track.causes,
-            isOrder: track.isOrder
+            isOrder: track.is_order
           }));
         })
       );
