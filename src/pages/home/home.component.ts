@@ -151,14 +151,17 @@ export class HomeComponent implements OnInit, OnDestroy {
             return item.symbol === price.symbol;
           });
           if (track) {
-            const f = (track.highPrice - track.lowPrice) / 100;
-            const q1 = track.lowPrice + f * Q1;
-            const q3 = track.lowPrice + f * Q3;
-            if (price.price <= q1) {
-              track.direction = 'red';
+            if (track.highPrice>0){
+              const q3 = track.highPrice - (track.highPrice * Q1 / 100);
+              if (price.price >= q3) {
+                track.direction = 'green';
+              }
             }
-            if (price.price >= q3) {
-              track.direction = 'green';
+            if (track.lowPrice>0){
+              const q1 = track.lowPrice + (track.lowPrice * Q1 / 100);
+              if (price.price <= q1) {
+                track.direction = 'red';
+              }
             }
           }
         });
