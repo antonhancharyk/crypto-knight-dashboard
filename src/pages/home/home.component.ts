@@ -59,7 +59,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   private pricesSubscription: Subscription = new Subscription();
   tracks: Track[] = [];
   activeTracks: Track[] = [];
-  inactiveTracks: Track[] = [];
+  orderTracks: Track[] = [];
   range = new FormGroup({
     from: new FormControl<Date | null>(new Date()),
     to: new FormControl<Date | null>(new Date()),
@@ -127,6 +127,7 @@ export class HomeComponent implements OnInit, OnDestroy {
               highStopPrice: +highStopPrice.toFixed(5),
             };
           });
+          this.orderTracks = this.activeTracks.filter((item) => item.isOrder)
 
           this.isLoadingTracks = false;
 
