@@ -112,7 +112,7 @@ export class HomeComponent implements OnInit, OnDestroy {
           this.tracks = res;
           this.activeTracks = res.map((item) => {
             const date = DateTime.fromISO(item.createdAt, { zone: 'utc' });
-            const dateInZone = date.setZone('UTC+3');
+            const dateInZone = date.setZone('UTC+0');
             const createdAt = dateInZone.toFormat('yyyy-MM-dd HH:mm');
 
             const [lowStopPrice, highStopPrice] = this.getStopLossPrices(
