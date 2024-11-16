@@ -55,8 +55,10 @@
           </mat-card-header>
           <div class="container_data">
             <div>
-              <mat-card-content>H: {{ item.highPrice }} {{ item.highPrice + item.highPrice*0.005 }}</mat-card-content>
-              <mat-card-content>L: {{ item.lowPrice }} {{ item.lowPrice - item.lowPrice*0.005 }}</mat-card-content>
+              <mat-card-content>H: {{ item.highPrice }}</mat-card-content>
+              <mat-card-content>H +0.5%: {{ item.highPrice + item.highPrice*0.005 }}</mat-card-content>
+              <mat-card-content>L: {{ item.lowPrice }}</mat-card-content>
+              <mat-card-content>L -0.5%: {{ item.lowPrice - item.lowPrice*0.005 }}</mat-card-content>
               <mat-card-content>P: {{ prices[item.symbol] }}</mat-card-content>
             </div>
             <div>
@@ -93,8 +95,10 @@
           </mat-card-header>
           <div class="container_data">
             <div>
-              <mat-card-content>H: {{ item.highPrice }} {{ item.highPrice + item.highPrice*0.005 }}</mat-card-content>
-              <mat-card-content>L: {{ item.lowPrice }} {{ item.lowPrice - item.lowPrice*0.005 }}</mat-card-content>
+              <mat-card-content>H: {{ item.highPrice }}</mat-card-content>
+              <mat-card-content>H +0.5%: {{ item.highPrice + item.highPrice*0.005 }}</mat-card-content>
+              <mat-card-content>L: {{ item.lowPrice }}</mat-card-content>
+              <mat-card-content>L -0.5%: {{ item.lowPrice - item.lowPrice*0.005 }}</mat-card-content>
               <mat-card-content>P: {{ prices[item.symbol] }}</mat-card-content>
             </div>
             <div>
