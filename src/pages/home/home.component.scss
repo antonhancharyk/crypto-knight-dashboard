@@ -42,8 +42,13 @@
 
 .mat-card {
   width: 100%;
+  padding: 1rem;
 }
 
 .container_data {
+  display: flex;
+}
+
+.container_prices {
   display: flex;
 }

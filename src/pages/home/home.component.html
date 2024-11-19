@@ -55,72 +55,36 @@
           </mat-card-header>
           <div class="container_data">
             <div>
-              <mat-card-content>H: {{ item.highPrice }}</mat-card-content>
-              <mat-card-content>L: {{ item.lowPrice }}</mat-card-content>
-              <mat-card-content>H1: {{ item.highPrice1 }}</mat-card-content>
-              <mat-card-content>L1: {{ item.lowPrice1 }}</mat-card-content>
-              <mat-card-content>H2: {{ item.highPrice2 }}</mat-card-content>
-              <mat-card-content>L2: {{ item.lowPrice2 }}</mat-card-content>
-              <mat-card-content>H3: {{ item.highPrice3 }}</mat-card-content>
-              <mat-card-content>L3: {{ item.lowPrice3 }}</mat-card-content>
-              <mat-card-content>P: {{ prices[item.symbol] }}</mat-card-content>
+              <div>
+                <mat-card-content
+                  >{{ item.createdAt.slice(0, 10) }} {{item.createdAt.slice(11)}}</mat-card-content
+                >
+              </div>
+              <div class="container_prices">
+                <div>
+                  <mat-card-content>H: {{ item.highPrice }}</mat-card-content>
+                  <mat-card-content>L: {{ item.lowPrice }}</mat-card-content>    
+                </div>
+                <div>
+                  <mat-card-content>H1: {{ item.highPrice1 }}</mat-card-content>
+                  <mat-card-content>H2: {{ item.highPrice2 }}</mat-card-content>
+                  <mat-card-content>H3: {{ item.highPrice3 }}</mat-card-content>
+                </div>
+                <div>
+                  <mat-card-content>L1: {{ item.lowPrice1 }}</mat-card-content>
+                  <mat-card-content>L2: {{ item.lowPrice2 }}</mat-card-content>
+                  <mat-card-content>L3: {{ item.lowPrice3 }}</mat-card-content>    
+                </div>
+              </div>
+              <div>
+                <mat-card-content>P: {{ prices[item.symbol] }}</mat-card-content>
+                <mat-card-content>O: {{ item.isOrder }}</mat-card-content>
+              </div>
             </div>
-            <div>
-              <mat-card-content
-                >D: {{ item.createdAt.slice(0, 10) }}</mat-card-content
-              >
-              <mat-card-content
-                >T: {{ item.createdAt.slice(11) }}</mat-card-content
-              >
-              <mat-card-content>O: {{ item.isOrder }}</mat-card-content>
-            </div>
+
           </div>
         </mat-card>
         @if ((activeTracks[idx+1] || item).createdAt !== item.createdAt) {
-        <div
-          [style]="{ width: '100%', height: '2px', backgroundColor: '#000000' }"
-        ></div>
-        } }
-      </div>
-      <div class="tracks">
-        <h1>Orders</h1>
-        @for (item of orderTracks; track item.symbol; let idx = $index) {
-        <mat-card class="mat-card">
-          <mat-card-header>
-            <mat-card-title
-              ><span
-                [style]="{
-                  color: item.direction,
-                  fontSize: item.symbol === 'BTCUSDT' && '32px'
-                }"
-                >{{ item.symbol.slice(0, -4) }}</span
-              ></mat-card-title
-            >
-          </mat-card-header>
-          <div class="container_data">
-            <div>
-              <mat-card-content>H: {{ item.highPrice }}</mat-card-content>
-              <mat-card-content>L: {{ item.lowPrice }}</mat-card-content>
-              <mat-card-content>H1: {{ item.highPrice1 }}</mat-card-content>
-              <mat-card-content>L1: {{ item.lowPrice1 }}</mat-card-content>
-              <mat-card-content>H2: {{ item.highPrice2 }}</mat-card-content>
-              <mat-card-content>L2: {{ item.lowPrice2 }}</mat-card-content>
-              <mat-card-content>H3: {{ item.highPrice3 }}</mat-card-content>
-              <mat-card-content>L3: {{ item.lowPrice3 }}</mat-card-content>
-              <mat-card-content>P: {{ prices[item.symbol] }}</mat-card-content>
-            </div>
-            <div>
-              <mat-card-content
-                >D: {{ item.createdAt.slice(0, 10) }}</mat-card-content
-              >
-              <mat-card-content
-                >T: {{ item.createdAt.slice(11) }}</mat-card-content
-              >
-              <mat-card-content>O: {{ item.isOrder }}</mat-card-content>
-            </div>
-          </div>
-        </mat-card>
-        @if ((orderTracks[idx+1] || item).createdAt !== item.createdAt) {
         <div
           [style]="{ width: '100%', height: '2px', backgroundColor: '#000000' }"
         ></div>
