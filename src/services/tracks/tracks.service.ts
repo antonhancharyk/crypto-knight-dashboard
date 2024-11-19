@@ -9,6 +9,12 @@ interface TrackResponse {
   symbol: string;
   high_price: number;
   low_price: number;
+  high_price_1: number;
+  low_price_1: number;
+  high_price_2: number;
+  low_price_2: number;
+  high_price_3: number;
+  low_price_3: number;
   causes: string[];
   created_at: string;
   is_order: boolean
@@ -44,6 +50,12 @@ export class TracksServices {
             symbol: track.symbol,
             highPrice: track.high_price,
             lowPrice: track.low_price,
+            highPrice1: track.high_price_1,
+            lowPrice1: track.low_price_1,
+            highPrice2: track.high_price_2,
+            lowPrice2: track.low_price_2,
+            highPrice3: track.high_price_3,
+            lowPrice3: track.low_price_3,
             createdAt: track.created_at,
             causes: track.causes,
             isOrder: track.is_order
