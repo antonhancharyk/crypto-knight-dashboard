@@ -9,6 +9,8 @@ export interface Track {
   highPrice3: number;
   lowPrice3: number;
   createdAt: string;
+  highCreatedAt: string;
+  lowCreatedAt: string;
   causes: string[];
   direction?: 'green' | 'red';
   lowStopPrice?: number;

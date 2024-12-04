@@ -115,6 +115,14 @@ export class HomeComponent implements OnInit, OnDestroy {
             const dateInZone = date.setZone('UTC+0');
             const createdAt = dateInZone.toFormat('yyyy-MM-dd HH:mm');
 
+            const dateHighCreatedAt = DateTime.fromISO(item.highCreatedAt, { zone: 'utc' });
+            const dateHighCreatedAtInZone = dateHighCreatedAt.setZone('UTC+0');
+            const highCreatedAt = dateHighCreatedAtInZone.toFormat('yyyy-MM-dd HH:mm');
+
+            const dateLowCreatedAt = DateTime.fromISO(item.lowCreatedAt, { zone: 'utc' });
+            const dateLowCreatedAtInZone = dateLowCreatedAt.setZone('UTC+0');
+            const lowCreatedAt = dateLowCreatedAtInZone.toFormat('yyyy-MM-dd HH:mm');
+
             const [lowStopPrice, highStopPrice] = this.getStopLossPrices(
               item.lowPrice,
               item.highPrice
@@ -123,6 +131,8 @@ export class HomeComponent implements OnInit, OnDestroy {
             return {
               ...item,
               createdAt,
+              highCreatedAt,
+              lowCreatedAt,
               lowStopPrice: +lowStopPrice.toFixed(5),
               highStopPrice: +highStopPrice.toFixed(5),
             };
