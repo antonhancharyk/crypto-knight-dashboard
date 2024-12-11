@@ -20,6 +20,12 @@ interface TrackResponse {
   is_order: boolean;
   high_created_at: string;
   low_created_at: string;
+  resistance_price_1: number;
+  support_price_1: number;
+  resistance_price_2: number;
+  support_price_2: number;
+  resistance_price_3: number;
+  support_price_3: number;
 }
 
 interface GetTracksParams {
@@ -63,6 +69,12 @@ export class TracksServices {
             isOrder: track.is_order,
             highCreatedAt: track.high_created_at,
             lowCreatedAt: track.low_created_at,
+            resistancePrice1: track.resistance_price_1,
+            supportPrice1: track.support_price_1,
+            resistancePrice2: track.resistance_price_2,
+            supportPrice2: track.support_price_2,
+            resistancePrice3: track.resistance_price_3,
+            supportPrice3: track.support_price_3,       
           }));
         })
       );

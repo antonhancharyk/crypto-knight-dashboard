@@ -47,8 +47,11 @@
 
 .container_data {
   display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .container_prices {
   display: flex;
+  gap: 0.5rem
 }

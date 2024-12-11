@@ -16,4 +16,10 @@ export interface Track {
   lowStopPrice?: number;
   highStopPrice?: number;
   isOrder: boolean
+  resistancePrice1: number;
+  supportPrice1: number;
+  resistancePrice2: number;
+  supportPrice2: number;
+  resistancePrice3: number;
+  supportPrice3: number;       
 }
