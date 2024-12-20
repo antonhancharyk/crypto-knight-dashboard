@@ -56,13 +56,13 @@
           <div class="container_data">
               <div>
                 <mat-card-content
-                  >{{ item.createdAt.slice(0, 10) }} {{item.createdAt.slice(11)}}</mat-card-content
+                  >Date: {{ item.createdAt.slice(0, 10) }} {{item.createdAt.slice(11)}}</mat-card-content
                 >
                 <mat-card-content
-                  >{{ item.highCreatedAt.slice(0, 10) }} {{item.highCreatedAt.slice(11)}}</mat-card-content
+                  >High date: {{ item.highCreatedAt.slice(0, 10) }} {{item.highCreatedAt.slice(11)}}</mat-card-content
                 >
                 <mat-card-content
-                  >{{ item.lowCreatedAt.slice(0, 10) }} {{item.lowCreatedAt.slice(11)}}</mat-card-content
+                  >Low date: {{ item.lowCreatedAt.slice(0, 10) }} {{item.lowCreatedAt.slice(11)}}</mat-card-content
                 >
               </div>
               <div>
@@ -71,25 +71,15 @@
               </div>
               <div class="container_prices">
                 <div>
-                  <mat-card-content>H1: {{ item.highPrice1 }}</mat-card-content>
-                  <mat-card-content>H2: {{ item.highPrice2 }}</mat-card-content>
-                  <mat-card-content>H3: {{ item.highPrice3 }}</mat-card-content>
+                  @for (p of item.highPrices; track p; let idxp = $index) {
+                    <mat-card-content>H{{idxp+1}}: {{ p }}</mat-card-content>
+                  }
                 </div>
                 <div>
-                  <mat-card-content>L1: {{ item.lowPrice1 }}</mat-card-content>
-                  <mat-card-content>L2: {{ item.lowPrice2 }}</mat-card-content>
-                  <mat-card-content>L3: {{ item.lowPrice3 }}</mat-card-content>    
-                </div>
-                <div>
-                  <mat-card-content>R1: {{ item.resistancePrice1 }}</mat-card-content>
-                  <mat-card-content>R2: {{ item.resistancePrice2 }}</mat-card-content>
-                  <mat-card-content>R3: {{ item.resistancePrice3 }}</mat-card-content>    
-                </div>
-                <div>
-                  <mat-card-content>S1: {{ item.supportPrice1 }}</mat-card-content>
-                  <mat-card-content>S2: {{ item.supportPrice2 }}</mat-card-content>
-                  <mat-card-content>S3: {{ item.supportPrice3 }}</mat-card-content>    
-                </div>
+                  @for (p of item.lowPrices; track p; let idxp = $index) {
+                    <mat-card-content>L{{idxp+1}}: {{ p }}</mat-card-content>
+                  }
+                </div>            
               </div>
               <!-- <div>
                 <mat-card-content>P: {{ prices[item.symbol] }}</mat-card-content>

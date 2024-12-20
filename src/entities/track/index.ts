@@ -21,5 +21,7 @@ export interface Track {
   resistancePrice2: number;
   supportPrice2: number;
   resistancePrice3: number;
-  supportPrice3: number;       
+  supportPrice3: number;  
+  highPrices: number[];     
+  lowPrices: number[];     
 }

@@ -26,6 +26,8 @@ interface TrackResponse {
   support_price_2: number;
   resistance_price_3: number;
   support_price_3: number;
+  high_prices: number[];
+  low_prices: number[];
 }
 
 interface GetTracksParams {
@@ -74,7 +76,9 @@ export class TracksServices {
             resistancePrice2: track.resistance_price_2,
             supportPrice2: track.support_price_2,
             resistancePrice3: track.resistance_price_3,
-            supportPrice3: track.support_price_3,       
+            supportPrice3: track.support_price_3,  
+            highPrices: track.high_prices,
+            lowPrices: track.low_prices,
           }));
         })
       );
