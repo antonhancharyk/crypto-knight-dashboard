@@ -2,6 +2,8 @@
 
 trap 'exit 0' TERM
 
+export PATH="/usr/local/bin:/usr/local/sbin:/usr/sbin:/usr/bin:/sbin:/bin"
+
 while :; do
   cert_path="/etc/letsencrypt/live/crypto-knight.online/fullchain.pem"
 
@@ -24,7 +26,7 @@ while :; do
       # If certificate expires in less than 30 days (2592000 seconds), renew it
       if [ $diff_seconds -le 2592000 ]; then
           echo "Certificate is expiring in less than 30 days. Renewing."
-          certbot renew --deploy-hook "nginx -s reload"
+          certbot renew --deploy-hook "/usr/sbin/nginx -s reload" --disable-hook-validation
           if [ $? -eq 0 ]; then
               echo "Certificate renewed successfully and nginx reloaded."
           else
