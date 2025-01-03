@@ -9,23 +9,11 @@ interface TrackResponse {
   symbol: string;
   high_price: number;
   low_price: number;
-  high_price_1: number;
-  low_price_1: number;
-  high_price_2: number;
-  low_price_2: number;
-  high_price_3: number;
-  low_price_3: number;
   causes: string[];
   created_at: string;
   is_order: boolean;
   high_created_at: string;
   low_created_at: string;
-  resistance_price_1: number;
-  support_price_1: number;
-  resistance_price_2: number;
-  support_price_2: number;
-  resistance_price_3: number;
-  support_price_3: number;
   high_prices: number[];
   low_prices: number[];
 }
@@ -60,23 +48,11 @@ export class TracksServices {
             symbol: track.symbol,
             highPrice: track.high_price,
             lowPrice: track.low_price,
-            highPrice1: track.high_price_1,
-            lowPrice1: track.low_price_1,
-            highPrice2: track.high_price_2,
-            lowPrice2: track.low_price_2,
-            highPrice3: track.high_price_3,
-            lowPrice3: track.low_price_3,
             createdAt: track.created_at,
             causes: track.causes,
             isOrder: track.is_order,
             highCreatedAt: track.high_created_at,
             lowCreatedAt: track.low_created_at,
-            resistancePrice1: track.resistance_price_1,
-            supportPrice1: track.support_price_1,
-            resistancePrice2: track.resistance_price_2,
-            supportPrice2: track.support_price_2,
-            resistancePrice3: track.resistance_price_3,
-            supportPrice3: track.support_price_3,  
             highPrices: track.high_prices,
             lowPrices: track.low_prices,
           }));
