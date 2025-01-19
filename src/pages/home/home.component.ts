@@ -26,7 +26,7 @@ import {
   AuthService,
 } from '../../services';
 import { Track } from '../../entities/track';
-import { Q1, Q3, SYMBOLS } from '../../constants';
+import { Q1, SYMBOLS } from '../../constants';
 
 @Component({
   selector: 'app-home',
