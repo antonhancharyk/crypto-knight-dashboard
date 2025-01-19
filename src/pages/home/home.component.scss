@@ -28,16 +28,13 @@
 }
 
 .container_tracks {
-  display: flex;
-  gap: 1rem;
 }
 
 .tracks {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  width: fit-content;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  align-items: stretch;
 }
 
 .mat-card {
