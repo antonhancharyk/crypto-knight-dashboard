@@ -5,47 +5,55 @@
   </div>
   } @else {
   <div class="container1">
-    <div class="filter">
-      <mat-form-field>
-        <mat-label>Date</mat-label>
-        <mat-date-range-input [formGroup]="range" [rangePicker]="picker">
-          <input matStartDate formControlName="from" placeholder="From" />
-          <input matEndDate formControlName="to" placeholder="To" />
-        </mat-date-range-input>
-        <mat-datepicker-toggle
-          matIconSuffix
-          [for]="picker"
-        ></mat-datepicker-toggle>
-        <mat-date-range-picker #picker></mat-date-range-picker>
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>Symbol</mat-label>
-        <input
-          type="text"
-          matInput
-          [formControl]="symbolControl"
-          [matAutocomplete]="auto"
-          placeholder="Enter to search"
-        />
-        <mat-autocomplete #auto="matAutocomplete">
-          @for (symbol of filteredSymbols | async; track symbol) {
-            <mat-option [value]="symbol">{{ symbol.slice(0, -4) }}</mat-option>
-            }  
-        </mat-autocomplete>
-        <mat-icon [style]="{ cursor: 'pointer' }" matSuffix (click)="clearSymbol()">clear</mat-icon>
-      </mat-form-field>
-      <mat-checkbox [formControl]="fullControl">Full</mat-checkbox>
-      <button
-        mat-stroked-button
-        color="primary"
-        (click)="handleClickGetTracks()"
-        [disabled]="isLoadingTracks"
-      >
-        Get tracks
-      </button>
-    </div>
+    <mat-accordion>
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            Filters
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="filter">
+          <mat-form-field>
+            <mat-label>Date</mat-label>
+            <mat-date-range-input [formGroup]="range" [rangePicker]="picker">
+              <input matStartDate formControlName="from" placeholder="From" />
+              <input matEndDate formControlName="to" placeholder="To" />
+            </mat-date-range-input>
+            <mat-datepicker-toggle
+              matIconSuffix
+              [for]="picker"
+            ></mat-datepicker-toggle>
+            <mat-date-range-picker #picker></mat-date-range-picker>
+          </mat-form-field>
+          <mat-form-field>
+            <mat-label>Symbol</mat-label>
+            <input
+              type="text"
+              matInput
+              [formControl]="symbolControl"
+              [matAutocomplete]="auto"
+              placeholder="Enter to search"
+            />
+            <mat-autocomplete #auto="matAutocomplete">
+              @for (symbol of filteredSymbols | async; track symbol) {
+                <mat-option [value]="symbol">{{ symbol.slice(0, -4) }}</mat-option>
+                }  
+            </mat-autocomplete>
+            <mat-icon [style]="{ cursor: 'pointer' }" matSuffix (click)="clearSymbol()">clear</mat-icon>
+          </mat-form-field>
+          <mat-checkbox [formControl]="fullControl">Full</mat-checkbox>
+          <button
+            mat-stroked-button
+            color="primary"
+            (click)="handleClickGetTracks()"
+            [disabled]="isLoadingTracks"
+          >
+            Get tracks
+          </button>
+        </div>
+      </mat-expansion-panel>
+    </mat-accordion>
     <div class="container_tracks">
-      <h1>Tracks</h1>
       <div class="tracks">
         @for (item of activeTracks; track item.symbol; let idx = $index) {
         <mat-card class="mat-card">
