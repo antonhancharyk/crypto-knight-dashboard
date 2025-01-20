@@ -88,8 +88,9 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     if (this.authService.isActive) {
-      // this.getTracks();
+      this.getTracks();
     }
+    
     this.filteredSymbols = this.symbolControl.valueChanges.pipe(
       startWith(''),
       map(value => this._filter(value || ''))
@@ -111,9 +112,11 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     const from = DateTime.fromJSDate(this.range.value?.from ?? new Date())
       .startOf('day')
+      .minus({ hours: 3 })
       .toFormat('yyyy-MM-dd HH:mm:ss');
     const to = DateTime.fromJSDate(this.range.value?.to ?? new Date())
       .endOf('day')
+      .minus({ hours: 3 })
       .toFormat('yyyy-MM-dd HH:mm:ss');
     const symbol = this.symbolControl.value ?? '';
     const full = this.fullControl.value ?? true;
@@ -130,15 +133,15 @@ export class HomeComponent implements OnInit, OnDestroy {
           this.tracks = res;
           this.activeTracks = res.map((item) => {
             const date = DateTime.fromISO(item.createdAt, { zone: 'utc' });
-            const dateInZone = date.setZone('UTC+0');
+            const dateInZone = date.setZone('UTC+3');
             const createdAt = dateInZone.toFormat('yyyy-MM-dd HH:mm');
 
             const dateHighCreatedAt = DateTime.fromISO(item.highCreatedAt, { zone: 'utc' });
-            const dateHighCreatedAtInZone = dateHighCreatedAt.setZone('UTC+0');
+            const dateHighCreatedAtInZone = dateHighCreatedAt.setZone('UTC+3');
             const highCreatedAt = dateHighCreatedAtInZone.toFormat('yyyy-MM-dd HH:mm');
 
             const dateLowCreatedAt = DateTime.fromISO(item.lowCreatedAt, { zone: 'utc' });
-            const dateLowCreatedAtInZone = dateLowCreatedAt.setZone('UTC+0');
+            const dateLowCreatedAtInZone = dateLowCreatedAt.setZone('UTC+3');
             const lowCreatedAt = dateLowCreatedAtInZone.toFormat('yyyy-MM-dd HH:mm');
 
             const [lowStopPrice, highStopPrice] = this.getStopLossPrices(
