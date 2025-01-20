@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription, startWith, map } from 'rxjs';
 import { MatCardModule } from '@angular/material/card';
 import { DateTime } from 'luxon';
 import {
@@ -18,6 +18,9 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import {MatAutocompleteModule} from '@angular/material/autocomplete';
+import { CommonModule } from '@angular/common';
+import {MatInputModule} from '@angular/material/input';
 
 import {
   CommonService,
@@ -44,6 +47,9 @@ import { Q1, SYMBOLS } from '../../constants';
     MatSelectModule,
     MatIconModule,
     MatCheckboxModule,
+    MatAutocompleteModule,
+    CommonModule,
+    MatInputModule
   ],
   providers: [
     CommonService,
@@ -70,6 +76,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   symbols = SYMBOLS.sort();
   symbolControl = new FormControl<string>('');
   fullControl = new FormControl(false);
+  filteredSymbols: Observable<string[]> | undefined;
 
   constructor(
     private tracksService: TracksServices,
@@ -81,11 +88,20 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (this.authService.isActive) {
       // this.getTracks();
     }
+    this.filteredSymbols = this.symbolControl.valueChanges.pipe(
+      startWith(''),
+      map(value => this._filter(value || ''))
+    );
   }
 
   ngOnDestroy() {
     this.tracksSubscription.unsubscribe();
     this.pricesSubscription.unsubscribe();
+  }
+
+  private _filter(value: string): string[] {
+    const filterValue = value.toLowerCase();
+    return this.symbols.filter(option => option.toLowerCase().includes(filterValue));
   }
 
   getTracks() {
