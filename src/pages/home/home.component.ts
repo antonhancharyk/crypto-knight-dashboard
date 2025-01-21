@@ -218,4 +218,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   clearSymbol() {
     this.symbolControl.reset();
   }
+
+  transformToUppercase(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    input.value = input.value.toUpperCase();
+    this.symbolControl.setValue(input.value); 
+  }
 }

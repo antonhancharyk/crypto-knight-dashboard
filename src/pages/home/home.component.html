@@ -33,6 +33,7 @@
               [formControl]="symbolControl"
               [matAutocomplete]="auto"
               placeholder="Enter to search"
+              (input)="transformToUppercase($event)"
             />
             <mat-autocomplete #auto="matAutocomplete">
               @for (symbol of filteredSymbols | async; track symbol) {
