@@ -16,6 +16,8 @@ interface TrackResponse {
   low_created_at: string;
   high_prices: number[];
   low_prices: number[];
+  take_profit_high_prices: number[];
+  take_profit_low_prices: number[];
 }
 
 interface GetTracksParams {
@@ -55,6 +57,8 @@ export class TracksServices {
             lowCreatedAt: track.low_created_at,
             highPrices: track.high_prices,
             lowPrices: track.low_prices,
+            takeProfitHighPrices: track.take_profit_high_prices,
+            takeProfitLowPrices: track.take_profit_low_prices,
           }));
         })
       );

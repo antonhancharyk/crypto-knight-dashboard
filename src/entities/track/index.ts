@@ -12,4 +12,6 @@ export interface Track {
   isOrder: boolean;
   highPrices: number[];     
   lowPrices: number[];     
+  takeProfitHighPrices: number[];     
+  takeProfitLowPrices: number[];     
 }

@@ -87,12 +87,29 @@
                   }
                 </div>            
               </div>
+              <div class="container_prices">
+                <div>
+                  @for (p of item.takeProfitHighPrices; track p; let idxp = $index) {
+                    <mat-card-content>TPH{{idxp+1}}: {{ p }}</mat-card-content>
+                  }
+                </div>
+                <div>
+                  @for (p of item.takeProfitLowPrices; track p; let idxp = $index) {
+                    <mat-card-content>TPL{{idxp+1}}: {{ p }}</mat-card-content>
+                  }
+                </div>            
+              </div>
           </div>
         </mat-card>
         @if ((activeTracks[idx+1] || item).createdAt !== item.createdAt) {
-        <div
-          [style]="{ width: '100%', height: '2px', backgroundColor: '#000000', gridColumn: '1 / -1' }"
-        ></div>
+        <div class="divider">
+          <div>
+            <span>{{item.createdAt.slice(0,10)}}</span>
+          </div>
+          <div>
+            <span>{{item.createdAt.slice(-5)}}</span>
+          </div>
+        </div>
         } }
       </div>
     </div>
