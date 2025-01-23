@@ -149,6 +149,9 @@ export class HomeComponent implements OnInit, OnDestroy {
               item.highPrice
             );
 
+            const hour = new Date(createdAt).getHours();
+            const bgColor = hour % 2 === 0 ? '#e0e0e0' : '#c0d6e4';
+
             return {
               ...item,
               createdAt,
@@ -156,6 +159,7 @@ export class HomeComponent implements OnInit, OnDestroy {
               lowCreatedAt,
               lowStopPrice: +lowStopPrice.toFixed(5),
               highStopPrice: +highStopPrice.toFixed(5),
+              bgColor
             };
           });
           this.orderTracks = this.activeTracks.filter((item) => item.isOrder)

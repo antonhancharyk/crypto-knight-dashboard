@@ -57,7 +57,9 @@
     <div class="container_tracks">
       <div class="tracks">
         @for (item of activeTracks; track item.symbol; let idx = $index) {
-        <mat-card class="mat-card">
+        <mat-card class="mat-card" [style]="{
+            backgroundColor: item.bgColor
+          }">
           <div class="mat-card-header">
             <span [style]="{
               color: item.direction,
@@ -101,18 +103,11 @@
               </div>
           </div>
         </mat-card>
-        @if ((activeTracks[idx+1] || item).createdAt !== item.createdAt) {
-        <div class="divider">
-          <div>
-            <span>{{item.createdAt.slice(0,10)}}</span>
-          </div>
-          <div>
-            <span>{{item.createdAt.slice(-5)}}</span>
-          </div>
-        </div>
-        } }
+        }
       </div>
     </div>
   </div>
   }
 </div>
+
+<!-- activeTracks[idx+1] || item).createdAt !== item.createdAt -->

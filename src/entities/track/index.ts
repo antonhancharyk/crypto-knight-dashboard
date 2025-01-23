@@ -13,5 +13,6 @@ export interface Track {
   highPrices: number[];     
   lowPrices: number[];     
   takeProfitHighPrices: number[];     
-  takeProfitLowPrices: number[];     
+  takeProfitLowPrices: number[]; 
+  bgColor?: string;
 }
