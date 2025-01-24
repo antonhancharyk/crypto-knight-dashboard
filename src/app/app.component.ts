@@ -39,7 +39,7 @@ export class AppComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.route.queryParams.subscribe((params) => {
       const code = params['code'];
-      if (!code) {
+      if (!code || code) {
         this.isLoading = false;
         this.authService.isActive = true;
         return;
@@ -47,7 +47,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
       this.authSubscription = this.authService.exchangeCode(code).subscribe({
         next: (res) => {
-          console.log(res);
           this.authService.setToken(res.access_token);
           this.authService.setRefreshToken(res.refresh_token);
           this.authService.isActive = true;
