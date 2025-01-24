@@ -54,7 +54,7 @@ export class AppComponent implements OnInit, OnDestroy {
           this.router.navigate(['/']);
         },
         error: (err) => {
-          window.location.href = REDIRECT_TO_SSO;
+          // window.location.href = REDIRECT_TO_SSO;
           console.log(err);
         },
       });
