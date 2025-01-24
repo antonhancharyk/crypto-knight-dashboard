@@ -39,7 +39,7 @@ export class AppComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.route.queryParams.subscribe((params) => {
       const code = params['code'];
-      if (!code || code) {
+      if (!code) {
         this.isLoading = false;
         this.authService.isActive = true;
         return;
