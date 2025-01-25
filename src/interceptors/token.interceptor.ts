@@ -18,8 +18,6 @@ export class TokenInterceptor implements HttpInterceptor {
     req: HttpRequest<any>,
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
-    return next.handle(req);
-
     if (
       req.url.includes('ssoauth.online/exchange') ||
       req.url.includes('ssoauth.online/refresh')
@@ -29,7 +27,7 @@ export class TokenInterceptor implements HttpInterceptor {
 
     const token = this.authService.getToken();
     if (!token) {
-      // window.location.href = REDIRECT_TO_SSO;
+      window.location.href = REDIRECT_TO_SSO;
 
       return new Observable<HttpEvent<any>>();
     }

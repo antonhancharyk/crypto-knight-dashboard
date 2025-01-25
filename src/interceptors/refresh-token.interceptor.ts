@@ -30,7 +30,7 @@ export class RefreshTokenInterceptor implements HttpInterceptor {
         if (error.status === 401) {
           const token = this.authService.getRefreshToken();
           if (!token) {
-            // window.location.href = REDIRECT_TO_SSO;
+            window.location.href = REDIRECT_TO_SSO;
 
             return new Observable<HttpEvent<any>>();
           }
@@ -52,7 +52,7 @@ export class RefreshTokenInterceptor implements HttpInterceptor {
               this.authService.setToken('');
               this.authService.setRefreshToken('');
 
-              // window.location.href = REDIRECT_TO_SSO;
+              window.location.href = REDIRECT_TO_SSO;
 
               return throwError(error);
             })
