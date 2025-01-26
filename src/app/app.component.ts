@@ -52,7 +52,7 @@ export class AppComponent implements OnInit, OnDestroy {
           this.authService.isActive = true;
 
           setTimeout(() => {
-            this.router.navigate(['/']);
+            this.router.navigate(['/home']);
           }, 5000)
         },
         error: (err) => {
