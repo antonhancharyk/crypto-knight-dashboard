@@ -18,6 +18,8 @@ export class TokenInterceptor implements HttpInterceptor {
     req: HttpRequest<any>,
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
+    console.log(req.url);
+    console.log(req.url);
     if (
       req.url.includes('ssoauth.online/exchange') ||
       req.url.includes('ssoauth.online/refresh')
