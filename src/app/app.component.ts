@@ -42,6 +42,7 @@ export class AppComponent implements OnInit, OnDestroy {
       if (!code) {
         this.isLoading = false;
         this.authService.isActive = true;
+        this.router.navigate(['/home']);
         return;
       }
 
@@ -50,10 +51,7 @@ export class AppComponent implements OnInit, OnDestroy {
           this.authService.setToken(res.access_token);
           this.authService.setRefreshToken(res.refresh_token);
           this.authService.isActive = true;
-
-          setTimeout(() => {
-            this.router.navigate(['/home']);
-          }, 5000)
+          this.router.navigate(['/home']);
         },
         error: (err) => {
           window.location.href = REDIRECT_TO_SSO;
