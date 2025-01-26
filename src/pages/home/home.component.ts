@@ -88,7 +88,9 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     if (this.authService.isActive) {
-      this.getTracks();
+      setTimeout(() =>{
+        this.getTracks();
+      })
     }
     
     this.filteredSymbols = this.symbolControl.valueChanges.pipe(
