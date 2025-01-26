@@ -90,7 +90,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (this.authService.isActive) {
       setTimeout(() =>{
         this.getTracks();
-      })
+      }, 1000)
     }
     
     this.filteredSymbols = this.symbolControl.valueChanges.pipe(
