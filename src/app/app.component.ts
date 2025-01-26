@@ -51,7 +51,9 @@ export class AppComponent implements OnInit, OnDestroy {
           this.authService.setRefreshToken(res.refresh_token);
           this.authService.isActive = true;
 
-          this.router.navigate(['/']);
+          setTimeout(() => {
+            this.router.navigate(['/']);
+          }, 5000)
         },
         error: (err) => {
           window.location.href = REDIRECT_TO_SSO;
