@@ -29,12 +29,15 @@ import { REDIRECT_TO_SSO } from '../constants';
 export class AppComponent implements OnInit, OnDestroy {
   private authSubscription: Subscription = new Subscription();
   isLoading: boolean = true;
+  router: Router;
 
   constructor(
     private route: ActivatedRoute,
     private authService: AuthService,
-    private router: Router
-  ) {}
+    router: Router
+  ) {
+    this.router = router
+  }
 
   ngOnInit() {
     this.route.queryParams.subscribe((params) => {
