@@ -51,7 +51,7 @@
 
 .container_prices {
   display: flex;
-  gap: 0.5rem
+  justify-content: space-between;
 }
 
 .mat-card-header {
