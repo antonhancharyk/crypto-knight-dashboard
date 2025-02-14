@@ -22,7 +22,9 @@ body {
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
 
-
+  & .mdc-form-field {
+    --mdc-form-field-label-text-size: 16px;
+  }
   & .mat-icon {
     width: 32px !important;
     height: 32px !important;

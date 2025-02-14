@@ -1,5 +1,5 @@
-import { Component, OnDestroy, OnInit, } from '@angular/core';
-import { Observable, Subscription } from 'rxjs';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy, signal } from '@angular/core';
+import { Observable, Subscription, startWith, map } from 'rxjs';
 import { MatCardModule } from '@angular/material/card';
 import { DateTime } from 'luxon';
 import {
@@ -30,6 +30,7 @@ import {
   AuthService,
 } from '../../services';
 import { Track } from '../../entities/track';
+import { Q1, SYMBOLS } from '../../constants';
 
 @Component({
   selector: 'app-home',
@@ -58,11 +59,12 @@ import { Track } from '../../entities/track';
     provideNativeDateAdapter(),
     BinancePriceService,
   ],
-  templateUrl: './home.component.html',
-  styleUrl: './home.component.scss',
+  templateUrl: './history.component.html',
+  styleUrl: './history.component.scss',
 })
-export class HomeComponent implements OnInit, OnDestroy {
+export class HistoryComponent implements OnInit, OnDestroy {
   private tracksSubscription: Subscription = new Subscription();
+  private pricesSubscription: Subscription = new Subscription();
   tracks: Track[] = [];
   activeTracks: Track[] = [];
   orderTracks: Track[] = [];
@@ -71,7 +73,11 @@ export class HomeComponent implements OnInit, OnDestroy {
     to: new FormControl<Date | null>(new Date()),
   });
   isLoadingTracks: boolean = false;
+  isLoadingPrices: boolean = false;
   prices: { [key: string]: number } = {};
+  symbols = SYMBOLS.sort();
+  symbolControl = new FormControl<string>('');
+  fullControl = new FormControl(false);
   filteredSymbols: Observable<string[]> | undefined;
 
   constructor(
@@ -82,12 +88,23 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     if (this.authService.isActive) {
-        this.getTracks();
+        // this.getTracks();
     }
+    
+    this.filteredSymbols = this.symbolControl.valueChanges.pipe(
+      startWith(''),
+      map(value => this._filter(value || ''))
+    );
   }
 
   ngOnDestroy() {
     this.tracksSubscription.unsubscribe();
+    this.pricesSubscription.unsubscribe();
+  }
+
+  private _filter(value: string): string[] {
+    const filterValue = value.toLowerCase();
+    return this.symbols.filter(option => option.toLowerCase().includes(filterValue));
   }
 
   getTracks() {
@@ -101,8 +118,8 @@ export class HomeComponent implements OnInit, OnDestroy {
       .endOf('day')
       .minus({ hours: 3 })
       .toFormat('yyyy-MM-dd HH:mm:ss');
-    const symbol = '';
-    const full = true;
+    const symbol = this.symbolControl.value ?? '';
+    const full = this.fullControl.value ?? true;
 
     this.tracksSubscription = this.tracksService
       .getTracks({
@@ -148,6 +165,8 @@ export class HomeComponent implements OnInit, OnDestroy {
           this.orderTracks = this.activeTracks.filter((item) => item.isOrder)
 
           this.isLoadingTracks = false;
+
+          this.getPrices();
         },
         error: (err) => {
           this.isLoadingTracks = false;
@@ -156,11 +175,57 @@ export class HomeComponent implements OnInit, OnDestroy {
       });
   }
 
+  getPrices() {
+    this.isLoadingPrices = true;
+
+    this.pricesSubscription = this.binancePriceService.getPrices().subscribe({
+      next: (prices) => {
+        prices.forEach((price) => {
+          this.prices[price.symbol] = price.price;
+
+          const track = this.activeTracks.find((item) => {
+            return item.symbol === price.symbol;
+          });
+          if (track) {
+            if (track.highPrice>0){
+              const q3 = track.highPrice - (track.highPrice * Q1 / 100);
+              if (price.price >= q3) {
+                track.direction = 'green';
+              }
+            }
+            if (track.lowPrice>0){
+              const q1 = track.lowPrice + (track.lowPrice * Q1 / 100);
+              if (price.price <= q1) {
+                track.direction = 'red';
+              }
+            }
+          }
+        });
+
+        this.isLoadingPrices = false;
+      },
+      error: (err) => {
+        this.isLoadingPrices = false;
+        console.error(err);
+      },
+    });
+  }
+
   handleClickGetTracks() {
     this.getTracks();
   }
 
   private getStopLossPrices(lowPrice: number, highPrice: number) {
     return [lowPrice + (lowPrice * 3) / 100, highPrice - (highPrice * 3) / 100];
+  }
+
+  clearSymbol() {
+    this.symbolControl.reset();
+  }
+
+  transformToUppercase(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    input.value = input.value.toUpperCase();
+    this.symbolControl.setValue(input.value); 
   }
 }

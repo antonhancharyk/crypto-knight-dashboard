@@ -1,0 +1,111 @@
+<div class="container">
+  @if (isLoadingTracks || isLoadingPrices) {
+  <div class="container_spinner">
+    <mat-spinner></mat-spinner>
+  </div>
+  } @else {
+  <div class="container1">
+    <mat-accordion>
+      <mat-expansion-panel expanded="true">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            Filters
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="filter">
+          <mat-form-field>
+            <mat-label>Date</mat-label>
+            <mat-date-range-input [formGroup]="range" [rangePicker]="picker">
+              <input matStartDate formControlName="from" placeholder="From" />
+              <input matEndDate formControlName="to" placeholder="To" />
+            </mat-date-range-input>
+            <mat-datepicker-toggle
+              matIconSuffix
+              [for]="picker"
+            ></mat-datepicker-toggle>
+            <mat-date-range-picker #picker></mat-date-range-picker>
+          </mat-form-field>
+          <mat-form-field>
+            <mat-label>Symbol</mat-label>
+            <input
+              type="text"
+              matInput
+              [formControl]="symbolControl"
+              [matAutocomplete]="auto"
+              placeholder="Enter to search"
+              (input)="transformToUppercase($event)"
+            />
+            <mat-autocomplete #auto="matAutocomplete">
+              @for (symbol of filteredSymbols | async; track symbol) {
+                <mat-option [value]="symbol">{{ symbol.slice(0, -4) }}</mat-option>
+                }  
+            </mat-autocomplete>
+            <mat-icon [style]="{ cursor: 'pointer' }" matSuffix (click)="clearSymbol()">clear</mat-icon>
+          </mat-form-field>
+          <mat-checkbox [formControl]="fullControl">Full</mat-checkbox>
+          <button
+            mat-stroked-button
+            color="primary"
+            (click)="handleClickGetTracks()"
+            [disabled]="isLoadingTracks"
+          >
+            Get tracks
+          </button>
+        </div>
+      </mat-expansion-panel>
+    </mat-accordion>
+    <div class="container_tracks">
+      <div class="tracks">
+        @for (item of activeTracks; track item.symbol; let idx = $index) {
+        <mat-card class="mat-card" [style]="{
+            backgroundColor: item.bgColor
+          }">
+          <div class="mat-card-header">
+            <span [style]="{
+              color: item.direction,
+              fontSize: item.symbol === 'BTCUSDT' && '32px'
+            }">{{ item.symbol.slice(0, -4) }}</span>
+            <span>{{ +prices[item.symbol] }}</span>
+          </div>
+          <div class="container_data">
+              <div>
+                <mat-card-content
+                  >D: {{ item.createdAt.slice(0, 10) }} {{item.createdAt.slice(11)}}</mat-card-content
+                >
+              </div>
+              <div>
+                <mat-card-content>H: {{ item.highPrice }}</mat-card-content>
+                <mat-card-content>L: {{ item.lowPrice }}</mat-card-content>    
+              </div>
+              <div class="container_prices">
+                <div>
+                  @for (p of item.highPrices; track p; let idxp = $index) {
+                    <mat-card-content>H{{idxp+1}}: {{ p }}</mat-card-content>
+                  }
+                </div>
+                <div>
+                  @for (p of item.lowPrices; track p; let idxp = $index) {
+                    <mat-card-content>L{{idxp+1}}: {{ p }}</mat-card-content>
+                  }
+                </div>            
+              </div>
+              <div class="container_prices">
+                <div>
+                  @for (p of item.takeProfitHighPrices; track p; let idxp = $index) {
+                    <mat-card-content>TPH{{idxp+1}}: {{ p }}</mat-card-content>
+                  }
+                </div>
+                <div>
+                  @for (p of item.takeProfitLowPrices; track p; let idxp = $index) {
+                    <mat-card-content>TPL{{idxp+1}}: {{ p }}</mat-card-content>
+                  }
+                </div>            
+              </div>
+          </div>
+        </mat-card>
+        }
+      </div>
+    </div>
+  </div>
+  }
+</div>

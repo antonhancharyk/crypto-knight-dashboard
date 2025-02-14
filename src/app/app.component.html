@@ -1,4 +1,16 @@
 <style>
+  .header {
+    height: 3rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .title {
+    font-size: 2rem;
+    line-height: 1;
+  }
+
   .btn {
     float: right;
   }
@@ -38,15 +50,22 @@
   <button type="button" mat-button (click)="drawer.toggle()" class="btn">
     <mat-icon
       aria-hidden="false"
-      aria-label="Example home icon"
+      aria-label="home"
       [fontIcon]="drawer.opened ? 'menu_open' : 'menu'"
     ></mat-icon>
   </button>
-  <header [style]="{ height: '36px' }"></header>
+  <header class="header">
+    @if (router.url === '/') {
+      <span class="title">Home</span>
+    } @else {
+      <span class="title">{{router.url.slice(1)[0].toUpperCase() + router.url.slice(2)}}</span>
+    }
+  </header>
   <router-outlet></router-outlet>
   <mat-drawer #drawer position="end">
     <div class="list">
       <a routerLink="" [class.active]="router.isActive('/', true)">Home</a>
+      <a routerLink="/history" [class.active]="router.isActive('/history', true)">History</a>
       <a routerLink="/settings" [class.active]="router.isActive('/settings', true)">Settings</a>
     </div>
   </mat-drawer>
