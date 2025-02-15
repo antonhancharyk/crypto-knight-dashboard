@@ -10,9 +10,9 @@ export interface Track {
   lowStopPrice?: number;
   highStopPrice?: number;
   isOrder: boolean;
-  highPrices: number[];     
-  lowPrices: number[];     
-  takeProfitHighPrices: number[];     
-  takeProfitLowPrices: number[]; 
+  highPrices: number[];
+  lowPrices: number[];
+  takeProfitHighPrices: number[];
+  takeProfitLowPrices: number[];
   bgColor?: string;
 }

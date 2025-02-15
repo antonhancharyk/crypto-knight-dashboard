@@ -21,10 +21,7 @@ interface Tokens {
 export class RefreshTokenInterceptor implements HttpInterceptor {
   constructor(private authService: AuthService) {}
 
-  intercept(
-    req: HttpRequest<any>,
-    next: HttpHandler
-  ): Observable<HttpEvent<any>> {
+  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     return next.handle(req).pipe(
       catchError((error: HttpErrorResponse) => {
         if (error.status === 401) {
@@ -41,10 +38,7 @@ export class RefreshTokenInterceptor implements HttpInterceptor {
               this.authService.setRefreshToken(res.refresh_token);
 
               const authReq = req.clone({
-                headers: req.headers.set(
-                  'Authorization',
-                  'Bearer ' + res.access_token
-                ),
+                headers: req.headers.set('Authorization', 'Bearer ' + res.access_token),
               });
               return next.handle(authReq);
             }),
@@ -55,12 +49,12 @@ export class RefreshTokenInterceptor implements HttpInterceptor {
               window.location.href = REDIRECT_TO_SSO;
 
               return throwError(error);
-            })
+            }),
           );
         }
 
         return throwError(error);
-      })
+      }),
     );
   }
 }

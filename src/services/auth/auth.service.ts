@@ -2,7 +2,7 @@ import { Injectable, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 
-import {SSO_API_URI, API_URI} from '../../constants'
+import { SSO_API_URI, API_URI } from '../../constants';
 
 interface Tokens {
   access_token: string;
@@ -19,7 +19,7 @@ export class AuthService {
   markAuthReady() {
     this.authReadySubject.next(true);
   }
-  
+
   getToken() {
     return localStorage.getItem('token') ?? '';
   }

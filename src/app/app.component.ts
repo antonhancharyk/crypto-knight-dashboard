@@ -34,9 +34,9 @@ export class AppComponent implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private authService: AuthService,
-    router: Router
+    router: Router,
   ) {
-    this.router = router
+    this.router = router;
   }
 
   ngOnInit() {

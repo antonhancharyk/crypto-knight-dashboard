@@ -1,10 +1,5 @@
 import { Injectable } from '@angular/core';
-import {
-  HttpEvent,
-  HttpInterceptor,
-  HttpHandler,
-  HttpRequest,
-} from '@angular/common/http';
+import { HttpEvent, HttpInterceptor, HttpHandler, HttpRequest } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { AuthService } from '../services/auth/auth.service';
@@ -14,14 +9,8 @@ import { REDIRECT_TO_SSO } from '../constants';
 export class TokenInterceptor implements HttpInterceptor {
   constructor(private authService: AuthService) {}
 
-  intercept(
-    req: HttpRequest<any>,
-    next: HttpHandler
-  ): Observable<HttpEvent<any>> {
-    if (
-      req.url.includes('ssoauth.online/exchange') ||
-      req.url.includes('ssoauth.online/refresh')
-    ) {
+  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    if (req.url.includes('ssoauth.online/exchange') || req.url.includes('ssoauth.online/refresh')) {
       return next.handle(req);
     }
 

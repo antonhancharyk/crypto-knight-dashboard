@@ -20,15 +20,19 @@
           <div class="container_data">
             <div class="price">
               <mat-card-content>H: {{ item.highPrice }}</mat-card-content>
-              <mat-card-content>{{
-                percentageChange(item.highPrice, prices[item.symbol])
-              }}</mat-card-content>
+              <mat-card-content
+                ><span>
+                  {{ percentageChange(item.highPrice, prices[item.symbol]) }}
+                </span></mat-card-content
+              >
             </div>
             <div class="price">
               <mat-card-content>L: {{ item.lowPrice }}</mat-card-content>
-              <mat-card-content>{{
-                percentageChange(item.lowPrice, prices[item.symbol])
-              }}</mat-card-content>
+              <mat-card-content>
+                <span>
+                  {{ percentageChange(item.lowPrice, prices[item.symbol]) }}
+                </span></mat-card-content
+              >
             </div>
           </div>
         </mat-card>

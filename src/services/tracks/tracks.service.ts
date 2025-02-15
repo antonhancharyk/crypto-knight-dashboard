@@ -42,25 +42,23 @@ export class TracksServices {
       }
     }
 
-    return this.http
-      .get<TrackResponse[]>(this.apiUrl + '/tracks', { params })
-      .pipe(
-        map((tracks) => {
-          return tracks.map((track) => ({
-            symbol: track.symbol,
-            highPrice: track.high_price,
-            lowPrice: track.low_price,
-            createdAt: track.created_at,
-            causes: track.causes,
-            isOrder: track.is_order,
-            highCreatedAt: track.high_created_at,
-            lowCreatedAt: track.low_created_at,
-            highPrices: track.high_prices,
-            lowPrices: track.low_prices,
-            takeProfitHighPrices: track.take_profit_high_prices,
-            takeProfitLowPrices: track.take_profit_low_prices,
-          }));
-        })
-      );
+    return this.http.get<TrackResponse[]>(this.apiUrl + '/tracks', { params }).pipe(
+      map((tracks) => {
+        return tracks.map((track) => ({
+          symbol: track.symbol,
+          highPrice: track.high_price,
+          lowPrice: track.low_price,
+          createdAt: track.created_at,
+          causes: track.causes,
+          isOrder: track.is_order,
+          highCreatedAt: track.high_created_at,
+          lowCreatedAt: track.low_created_at,
+          highPrices: track.high_prices,
+          lowPrices: track.low_prices,
+          takeProfitHighPrices: track.take_profit_high_prices,
+          takeProfitLowPrices: track.take_profit_low_prices,
+        }));
+      }),
+    );
   }
 }

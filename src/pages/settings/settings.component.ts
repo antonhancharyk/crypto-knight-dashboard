@@ -9,12 +9,7 @@ import { CommonService } from '../../services';
 @Component({
   selector: 'app-settings',
   standalone: true,
-  imports: [
-    MatSlideToggleModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatProgressSpinnerModule,
-  ],
+  imports: [MatSlideToggleModule, FormsModule, ReactiveFormsModule, MatProgressSpinnerModule],
   providers: [CommonService],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss',
