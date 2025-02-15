@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
+import { Observable, Subject,Subscription } from 'rxjs';
 import { switchMap, takeUntil, tap } from 'rxjs/operators';
 import { MatCardModule } from '@angular/material/card';
 import { DateTime } from 'luxon';
@@ -18,7 +18,7 @@ import { CommonModule } from '@angular/common';
 import { MatInputModule } from '@angular/material/input';
 import { MatExpansionModule } from '@angular/material/expansion';
 
-import { CommonService, TracksServices, BinancePriceService, AuthService } from '../../services';
+import { CommonService, TracksServices, BinancePriceService, AuthService, BinanceWebSocketService } from '../../services';
 import { Track } from '../../entities/track';
 
 @Component({
@@ -51,18 +51,21 @@ import { Track } from '../../entities/track';
   styleUrl: './home.component.scss',
 })
 export class HomeComponent implements OnInit, OnDestroy {
+  constructor(
+    private tracksService: TracksServices,
+    private authService: AuthService,
+    private wsService: BinanceWebSocketService
+  ) {}
+
   private destroy$ = new Subject<void>();
   tracks$: Observable<Track[]> = new Observable();
+  prices: { [key: string]: number } = {};
+  private subscription!: Subscription;
 
   range = new FormGroup({
     from: new FormControl<Date | null>(new Date()),
     to: new FormControl<Date | null>(new Date()),
   });
-
-  constructor(
-    private tracksService: TracksServices,
-    private authService: AuthService
-  ) {}
 
   ngOnInit() {
     this.tracks$ = this.authService.isAuthReady$.pipe(
@@ -74,11 +77,19 @@ export class HomeComponent implements OnInit, OnDestroy {
       }),
       takeUntil(this.destroy$)
     );
+
+    this.subscription = this.wsService.connect().subscribe((data) => {
+      data.forEach((ticker: any) => {
+        this.prices[ticker.s] = parseFloat(ticker.c); // `s` - символ, `c` - цена
+      });
+    });
   }
 
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+    this.subscription.unsubscribe();
+    this.wsService.close();
   }
 
   getTracks(): Observable<Track[]> {
