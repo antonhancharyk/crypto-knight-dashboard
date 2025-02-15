@@ -1,9 +1,10 @@
 <style>
   .header {
-    height: 3rem;
+    height: 4rem;
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
+    padding: 1rem;
   }
 
   .title {
@@ -42,32 +43,32 @@
 </style>
 
 @if (isLoading) {
-<div class="container_spinner">
-  <mat-spinner></mat-spinner>
-</div>
+  <div class="container_spinner">
+    <mat-spinner></mat-spinner>
+  </div>
 } @else {
-<mat-drawer-container autosize>
-  <button type="button" mat-button (click)="drawer.toggle()" class="btn">
-    <mat-icon
-      aria-hidden="false"
-      aria-label="home"
-      [fontIcon]="drawer.opened ? 'menu_open' : 'menu'"
-    ></mat-icon>
-  </button>
-  <header class="header">
-    @if (router.url === '/') {
-      <span class="title">Home</span>
-    } @else {
-      <span class="title">{{router.url.slice(1)[0].toUpperCase() + router.url.slice(2)}}</span>
-    }
-  </header>
-  <router-outlet></router-outlet>
-  <mat-drawer #drawer position="end">
-    <div class="list">
-      <a routerLink="" [class.active]="router.isActive('/', true)">Home</a>
-      <a routerLink="/history" [class.active]="router.isActive('/history', true)">History</a>
-      <a routerLink="/settings" [class.active]="router.isActive('/settings', true)">Settings</a>
-    </div>
-  </mat-drawer>
-</mat-drawer-container>
+  <mat-drawer-container autosize>
+    <header class="header">
+      @if (router.url === '/') {
+        <span class="title">Home</span>
+      } @else {
+        <span class="title">{{ router.url.slice(1)[0].toUpperCase() + router.url.slice(2) }}</span>
+      }
+      <button type="button" mat-button (click)="drawer.toggle()" class="btn">
+        <mat-icon
+          aria-hidden="false"
+          aria-label="home"
+          [fontIcon]="drawer.opened ? 'menu_open' : 'menu'"
+        ></mat-icon>
+      </button>
+    </header>
+    <router-outlet></router-outlet>
+    <mat-drawer #drawer position="end">
+      <div class="list">
+        <a routerLink="" [class.active]="router.isActive('/', true)">Home</a>
+        <a routerLink="/history" [class.active]="router.isActive('/history', true)">History</a>
+        <a routerLink="/settings" [class.active]="router.isActive('/settings', true)">Settings</a>
+      </div>
+    </mat-drawer>
+  </mat-drawer-container>
 }
