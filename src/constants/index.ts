@@ -280,3 +280,5 @@ export const SYMBOLS = [
   'API3USDT',
   'ZKUSDT',
 ];
+export const SSO_API_URI = 'https://ssoauth.online'
+export const API_URI = 'https://api.crypto-knight.online'

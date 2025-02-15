@@ -31,7 +31,6 @@ import { Track } from '../../entities/track';
     MatDatepickerModule,
     FormsModule,
     ReactiveFormsModule,
-    JsonPipe,
     MatButtonModule,
     MatProgressSpinnerModule,
     MatDividerModule,
@@ -55,7 +54,6 @@ import { Track } from '../../entities/track';
 export class HomeComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   tracks$: Observable<Track[]> = new Observable();
-  isLoadingTracks = true;
 
   range = new FormGroup({
     from: new FormControl<Date | null>(new Date()),
@@ -75,7 +73,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         }; 
         return this.getTracks();
       }),
-      tap(() => (this.isLoadingTracks = false)), 
       takeUntil(this.destroy$)
     );
   }
@@ -97,13 +94,9 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     return this.tracksService.getTracks({ from, to, symbol: '', full: true }).pipe(
       tap((tracks) => {
-        
         tracks.forEach((item) => {
           const date = DateTime.fromISO(item.createdAt, { zone: 'utc' }).setZone('UTC+3');
           item.createdAt = date.toFormat('yyyy-MM-dd HH:mm');
-
-
-
         });
       })
     );
