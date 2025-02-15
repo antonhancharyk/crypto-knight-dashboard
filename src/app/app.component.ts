@@ -44,7 +44,7 @@ export class AppComponent implements OnInit, OnDestroy {
       const code = params['code'];
       if (!code) {
         this.isLoading = false;
-        this.authService.markAuthReady();
+        // this.authService.markAuthReady();
         return;
       }
 
@@ -52,7 +52,7 @@ export class AppComponent implements OnInit, OnDestroy {
         next: (res) => {
           this.authService.setToken(res.access_token);
           this.authService.setRefreshToken(res.refresh_token);
-          this.authService.markAuthReady();
+          // this.authService.markAuthReady();
           this.router.navigate(['/']);
         },
         error: (err) => {
