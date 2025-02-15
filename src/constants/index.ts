@@ -282,4 +282,5 @@ export const SYMBOLS = [
 ];
 export const SSO_API_URI = 'https://ssoauth.online'
 export const API_URI = 'https://api.crypto-knight.online'
+export const BINANCE_API_URI = 'https://fapi.binance.com'
 export const WS_TICKER_API_URI = 'wss://fstream.binance.com/ws/!ticker@arr'

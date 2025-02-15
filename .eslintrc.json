@@ -1,0 +1,7 @@
+{
+  "extends": ["plugin:@angular-eslint/recommended"],
+  "rules": {
+    "quotes": ["error", "single"],
+    "semi": ["error", "always"]
+  }
+}

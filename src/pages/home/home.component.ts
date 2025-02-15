@@ -1,9 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Observable, Subject,Subscription } from 'rxjs';
+import { Observable, Subject, Subscription } from 'rxjs';
 import { switchMap, takeUntil, tap } from 'rxjs/operators';
 import { MatCardModule } from '@angular/material/card';
 import { DateTime } from 'luxon';
-import {FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { provideNativeDateAdapter } from '@angular/material/core';
@@ -17,8 +17,15 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { CommonModule } from '@angular/common';
 import { MatInputModule } from '@angular/material/input';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
-import { CommonService, TracksServices, BinancePriceService, AuthService, BinanceWebSocketService } from '../../services';
+import {
+  CommonService,
+  TracksServices,
+  BinancePriceService,
+  AuthService,
+  BinanceWebSocketService,
+} from '../../services';
 import { Track } from '../../entities/track';
 
 @Component({
@@ -40,50 +47,47 @@ import { Track } from '../../entities/track';
     CommonModule,
     MatInputModule,
     MatExpansionModule,
+    MatSlideToggleModule,
   ],
-  providers: [
-    CommonService,
-    TracksServices,
-    provideNativeDateAdapter(),
-    BinancePriceService,
-  ],
+  providers: [CommonService, TracksServices, provideNativeDateAdapter(), BinancePriceService],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })
 export class HomeComponent implements OnInit, OnDestroy {
-  constructor(
-    private tracksService: TracksServices,
-    private authService: AuthService,
-    private wsService: BinanceWebSocketService
-  ) {}
-
   private destroy$ = new Subject<void>();
   tracks$: Observable<Track[]> = new Observable();
   prices: { [key: string]: number } = {};
-  private subscription!: Subscription;
+
+  constructor(
+    private tracksService: TracksServices,
+    private authService: AuthService,
+    private wsService: BinanceWebSocketService,
+  ) {}
 
   ngOnInit() {
     this.tracks$ = this.authService.isAuthReady$.pipe(
       switchMap((isActive) => {
         if (!isActive || !this.authService.getToken()) {
-          return new Observable<Track[]>()
-        }; 
+          return new Observable<Track[]>();
+        }
         return this.getTracks();
       }),
-      takeUntil(this.destroy$)
+      takeUntil(this.destroy$),
     );
 
-    this.subscription = this.wsService.connect().subscribe((data) => {
-      data.forEach((ticker: any) => {
-        this.prices[ticker.s] = parseFloat(ticker.c); 
+    this.wsService
+      .connect()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((data) => {
+        data.forEach((ticker: any) => {
+          this.prices[ticker.s] = parseFloat(ticker.c);
+        });
       });
-    });
   }
 
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
-    this.subscription.unsubscribe();
     this.wsService.close();
   }
 
@@ -98,15 +102,15 @@ export class HomeComponent implements OnInit, OnDestroy {
           const date = DateTime.fromISO(item.createdAt, { zone: 'utc' }).setZone('UTC+3');
           item.createdAt = date.toFormat('yyyy-MM-dd HH:mm');
         });
-      })
+      }),
     );
   }
 
   percentageChange(value: number, base: number): string {
     if (!value || !base) {
-      return ''
+      return '';
     }
-    
+
     const diff = ((value - base) / base) * 100;
     return diff.toFixed(2) + '%';
   }

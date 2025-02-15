@@ -2,12 +2,7 @@ import { Component, OnDestroy, OnInit, ChangeDetectionStrategy, signal } from '@
 import { Observable, Subscription, startWith, map } from 'rxjs';
 import { MatCardModule } from '@angular/material/card';
 import { DateTime } from 'luxon';
-import {
-  FormGroup,
-  FormControl,
-  FormsModule,
-  ReactiveFormsModule,
-} from '@angular/forms';
+import { FormGroup, FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { provideNativeDateAdapter } from '@angular/material/core';
@@ -17,19 +12,14 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import {MatAutocompleteModule} from '@angular/material/autocomplete';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { CommonModule } from '@angular/common';
-import {MatInputModule} from '@angular/material/input';
-import {MatExpansionModule} from '@angular/material/expansion';
-import {  Subject } from 'rxjs';
+import { MatInputModule } from '@angular/material/input';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { Subject } from 'rxjs';
 import { switchMap, takeUntil, tap } from 'rxjs/operators';
 
-import {
-  CommonService,
-  TracksServices,
-  BinancePriceService,
-  AuthService,
-} from '../../services';
+import { CommonService, TracksServices, BinancePriceService, AuthService } from '../../services';
 import { Track } from '../../entities/track';
 import { Q1, SYMBOLS } from '../../constants';
 
@@ -51,14 +41,9 @@ import { Q1, SYMBOLS } from '../../constants';
     MatAutocompleteModule,
     CommonModule,
     MatInputModule,
-    MatExpansionModule
+    MatExpansionModule,
   ],
-  providers: [
-    CommonService,
-    TracksServices,
-    provideNativeDateAdapter(),
-    BinancePriceService,
-  ],
+  providers: [CommonService, TracksServices, provideNativeDateAdapter(), BinancePriceService],
   templateUrl: './history.component.html',
   styleUrl: './history.component.scss',
 })
@@ -79,32 +64,30 @@ export class HistoryComponent implements OnInit, OnDestroy {
   symbolControl = new FormControl<string>('');
   fullControl = new FormControl(false);
   filteredSymbols: Observable<string[]> | undefined;
+  // private destroy$ = new Subject<void>();
+  tracks$: Observable<Track[]> = new Observable();
 
   constructor(
     private tracksService: TracksServices,
     private binancePriceService: BinancePriceService,
-    private authService: AuthService
   ) {}
 
-  private destroy$ = new Subject<void>();
-  tracks$: Observable<Track[]> = new Observable();
+  ngOnInit() {
+    this.filteredSymbols = this.symbolControl.valueChanges.pipe(
+      startWith(''),
+      map((value) => this._filter(value || '')),
+    );
 
-    ngOnInit() {
-      this.filteredSymbols = this.symbolControl.valueChanges.pipe(
-        startWith(''),
-        map(value => this._filter(value || ''))
-      );
-  
-      // this.tracks$ = this.authService.isAuthReady$.pipe(
-      //   switchMap((isActive) => {
-      //     if (!isActive || !this.authService.getToken()) {
-      //       return new Observable<Track[]>()
-      //     }; 
-      //     return this.getTracks();
-      //   }),
-      //   takeUntil(this.destroy$)
-      // );
-    }
+    // this.tracks$ = this.authService.isAuthReady$.pipe(
+    //   switchMap((isActive) => {
+    //     if (!isActive || !this.authService.getToken()) {
+    //       return new Observable<Track[]>()
+    //     };
+    //     return this.getTracks();
+    //   }),
+    //   takeUntil(this.destroy$)
+    // );
+  }
 
   ngOnDestroy() {
     this.tracksSubscription.unsubscribe();
@@ -113,7 +96,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
 
   private _filter(value: string): string[] {
     const filterValue = value.toLowerCase();
-    return this.symbols.filter(option => option.toLowerCase().includes(filterValue));
+    return this.symbols.filter((option) => option.toLowerCase().includes(filterValue));
   }
 
   getTracks() {
@@ -155,7 +138,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
 
             const [lowStopPrice, highStopPrice] = this.getStopLossPrices(
               item.lowPrice,
-              item.highPrice
+              item.highPrice,
             );
 
             const hour = new Date(createdAt).getHours();
@@ -168,10 +151,10 @@ export class HistoryComponent implements OnInit, OnDestroy {
               lowCreatedAt,
               lowStopPrice: +lowStopPrice.toFixed(5),
               highStopPrice: +highStopPrice.toFixed(5),
-              bgColor
+              bgColor,
             };
           });
-          this.orderTracks = this.activeTracks.filter((item) => item.isOrder)
+          this.orderTracks = this.activeTracks.filter((item) => item.isOrder);
 
           this.isLoadingTracks = false;
 
@@ -196,14 +179,14 @@ export class HistoryComponent implements OnInit, OnDestroy {
             return item.symbol === price.symbol;
           });
           if (track) {
-            if (track.highPrice>0){
-              const q3 = track.highPrice - (track.highPrice * Q1 / 100);
+            if (track.highPrice > 0) {
+              const q3 = track.highPrice - (track.highPrice * Q1) / 100;
               if (price.price >= q3) {
                 track.direction = 'green';
               }
             }
-            if (track.lowPrice>0){
-              const q1 = track.lowPrice + (track.lowPrice * Q1 / 100);
+            if (track.lowPrice > 0) {
+              const q1 = track.lowPrice + (track.lowPrice * Q1) / 100;
               if (price.price <= q1) {
                 track.direction = 'red';
               }
@@ -235,6 +218,6 @@ export class HistoryComponent implements OnInit, OnDestroy {
   transformToUppercase(event: Event): void {
     const input = event.target as HTMLInputElement;
     input.value = input.value.toUpperCase();
-    this.symbolControl.setValue(input.value); 
+    this.symbolControl.setValue(input.value);
   }
 }

@@ -1,10 +1,18 @@
 <div class="container">
   <ng-container *ngIf="tracks$ | async as tracks; else loading">
+    <!-- <div class="settings">
+      <mat-slide-toggle [checked]="true">Show positions</mat-slide-toggle>
+    </div> -->
     <div class="tracks">
       <ng-container *ngFor="let item of tracks">
         <mat-card class="mat-card" [style]="{ backgroundColor: item.bgColor }">
           <div class="mat-card-header">
-            <span [style]="{ color: item.direction, fontSize: item.symbol === 'BTCUSDT' ? '32px' : 'inherit' }">
+            <span
+              [style]="{
+                color: item.direction,
+                fontSize: item.symbol === 'BTCUSDT' ? '32px' : 'inherit',
+              }"
+            >
               {{ item.symbol.slice(0, -4) }}
             </span>
             <span>{{ prices[item.symbol] }}</span>
@@ -15,11 +23,15 @@
             </mat-card-content>
             <div class="price">
               <mat-card-content>H: {{ item.highPrice }}</mat-card-content>
-              <mat-card-content>{{ percentageChange(item.highPrice, prices[item.symbol]) }}</mat-card-content>
+              <mat-card-content>{{
+                percentageChange(item.highPrice, prices[item.symbol])
+              }}</mat-card-content>
             </div>
             <div class="price">
               <mat-card-content>L: {{ item.lowPrice }}</mat-card-content>
-              <mat-card-content>{{ percentageChange(item.lowPrice, prices[item.symbol]) }}</mat-card-content>
+              <mat-card-content>{{
+                percentageChange(item.lowPrice, prices[item.symbol])
+              }}</mat-card-content>
             </div>
           </div>
         </mat-card>
