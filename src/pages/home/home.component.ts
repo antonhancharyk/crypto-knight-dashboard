@@ -74,6 +74,7 @@ export class HomeComponent implements OnInit, OnDestroy {
           return new Observable<Track[]>()
         }; 
         console.log("hello");
+        console.log(isActive);
         console.log("this.authService.getToken()",this.authService.getToken());
 
         return new Observable<Track[]>()
