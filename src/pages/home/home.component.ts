@@ -70,16 +70,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.tracks$ = this.authService.isAuthReady$.pipe(
       switchMap((isActive) => {
-        if (!isActive) {
+        if (!isActive || !this.authService.getToken()) {
           return new Observable<Track[]>()
         }; 
-        console.log("hello");
-        console.log(isActive);
-        console.log("this.authService.getToken()",this.authService.getToken());
-
-        return new Observable<Track[]>()
-        // this.isLoadingTracks = true;
-        // return this.getTracks();
+        return this.getTracks();
       }),
       tap(() => (this.isLoadingTracks = false)), 
       takeUntil(this.destroy$)
