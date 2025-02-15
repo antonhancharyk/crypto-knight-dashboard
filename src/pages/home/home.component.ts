@@ -3,7 +3,7 @@ import { Observable, Subject,Subscription } from 'rxjs';
 import { switchMap, takeUntil, tap } from 'rxjs/operators';
 import { MatCardModule } from '@angular/material/card';
 import { DateTime } from 'luxon';
-import { FormGroup, FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { provideNativeDateAdapter } from '@angular/material/core';
@@ -62,11 +62,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   prices: { [key: string]: number } = {};
   private subscription!: Subscription;
 
-  range = new FormGroup({
-    from: new FormControl<Date | null>(new Date()),
-    to: new FormControl<Date | null>(new Date()),
-  });
-
   ngOnInit() {
     this.tracks$ = this.authService.isAuthReady$.pipe(
       switchMap((isActive) => {
@@ -80,7 +75,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     this.subscription = this.wsService.connect().subscribe((data) => {
       data.forEach((ticker: any) => {
-        this.prices[ticker.s] = parseFloat(ticker.c); // `s` - символ, `c` - цена
+        this.prices[ticker.s] = parseFloat(ticker.c); 
       });
     });
   }
@@ -93,14 +88,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   getTracks(): Observable<Track[]> {
-    const from = DateTime.fromJSDate(this.range.value?.from ?? new Date())
-      .startOf('day')
-      .minus({ hours: 3 })
-      .toFormat('yyyy-MM-dd HH:mm:ss');
-    const to = DateTime.fromJSDate(this.range.value?.to ?? new Date())
-      .endOf('day')
-      .minus({ hours: 3 })
-      .toFormat('yyyy-MM-dd HH:mm:ss');
+    const now = DateTime.local().minus({ hours: 3 });
+    const from = now.set({ minute: 0, second: 0 }).toFormat('yyyy-MM-dd HH:mm:ss');
+    const to = now.set({ minute: 59, second: 59 }).toFormat('yyyy-MM-dd HH:mm:ss');
 
     return this.tracksService.getTracks({ from, to, symbol: '', full: true }).pipe(
       tap((tracks) => {
