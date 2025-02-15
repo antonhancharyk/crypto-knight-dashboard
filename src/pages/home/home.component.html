@@ -1,5 +1,4 @@
 <div class="container">
-  {{prices}}
   <ng-container *ngIf="tracks$ | async as tracks; else loading">
     <div class="container1">
       <div class="container_tracks">
@@ -10,7 +9,7 @@
                 <span [style]="{ color: item.direction, fontSize: item.symbol === 'BTCUSDT' ? '32px' : 'inherit' }">
                   {{ item.symbol.slice(0, -4) }}
                 </span>
-                <!-- <span>{{ prices[item.symbol] || '-' }}</span> -->
+                <span>{{ prices[item.symbol] || '-' }}</span>
               </div>
               <div class="container_data">
                 <div>
