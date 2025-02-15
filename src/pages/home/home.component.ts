@@ -75,8 +75,10 @@ export class HomeComponent implements OnInit, OnDestroy {
         }; 
         console.log("hello");
         console.log("this.authService.getToken()",this.authService.getToken());
+
+        return new Observable<Track[]>()
         // this.isLoadingTracks = true;
-        return this.getTracks();
+        // return this.getTracks();
       }),
       tap(() => (this.isLoadingTracks = false)), 
       takeUntil(this.destroy$)
