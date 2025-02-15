@@ -8,7 +8,6 @@ import {
   FormsModule,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { JsonPipe } from '@angular/common';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { provideNativeDateAdapter } from '@angular/material/core';
@@ -22,6 +21,8 @@ import {MatAutocompleteModule} from '@angular/material/autocomplete';
 import { CommonModule } from '@angular/common';
 import {MatInputModule} from '@angular/material/input';
 import {MatExpansionModule} from '@angular/material/expansion';
+import {  Subject } from 'rxjs';
+import { switchMap, takeUntil, tap } from 'rxjs/operators';
 
 import {
   CommonService,
@@ -41,7 +42,6 @@ import { Q1, SYMBOLS } from '../../constants';
     MatDatepickerModule,
     FormsModule,
     ReactiveFormsModule,
-    JsonPipe,
     MatButtonModule,
     MatProgressSpinnerModule,
     MatDividerModule,
@@ -86,16 +86,25 @@ export class HistoryComponent implements OnInit, OnDestroy {
     private authService: AuthService
   ) {}
 
-  ngOnInit() {
-    if (this.authService.isActive) {
-        // this.getTracks();
+  private destroy$ = new Subject<void>();
+  tracks$: Observable<Track[]> = new Observable();
+
+    ngOnInit() {
+      this.filteredSymbols = this.symbolControl.valueChanges.pipe(
+        startWith(''),
+        map(value => this._filter(value || ''))
+      );
+  
+      // this.tracks$ = this.authService.isAuthReady$.pipe(
+      //   switchMap((isActive) => {
+      //     if (!isActive || !this.authService.getToken()) {
+      //       return new Observable<Track[]>()
+      //     }; 
+      //     return this.getTracks();
+      //   }),
+      //   takeUntil(this.destroy$)
+      // );
     }
-    
-    this.filteredSymbols = this.symbolControl.valueChanges.pipe(
-      startWith(''),
-      map(value => this._filter(value || ''))
-    );
-  }
 
   ngOnDestroy() {
     this.tracksSubscription.unsubscribe();

@@ -4,7 +4,6 @@ import { switchMap, takeUntil, tap } from 'rxjs/operators';
 import { MatCardModule } from '@angular/material/card';
 import { DateTime } from 'luxon';
 import { FormGroup, FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { JsonPipe } from '@angular/common';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { provideNativeDateAdapter } from '@angular/material/core';
