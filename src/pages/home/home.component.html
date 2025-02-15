@@ -13,8 +13,8 @@
             <mat-card-content>
               D: {{ item.createdAt.slice(0, 10) }} {{ item.createdAt.slice(11) }}
             </mat-card-content>
-            <mat-card-content>H: {{ item.highPrice }}</mat-card-content>
-            <mat-card-content>L: {{ item.lowPrice }}</mat-card-content>
+            <mat-card-content>H: {{ item.highPrice }} ({{ percentageChange(item.highPrice, prices[item.symbol]) }})</mat-card-content>
+            <mat-card-content>L: {{ item.lowPrice }} ({{ percentageChange(item.lowPrice, prices[item.symbol]) }})</mat-card-content>
           </div>
         </mat-card>
       </ng-container>

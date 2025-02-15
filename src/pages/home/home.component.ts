@@ -101,4 +101,9 @@ export class HomeComponent implements OnInit, OnDestroy {
       })
     );
   }
+
+  percentageChange(value: number, base: number): string {
+    const diff = ((value - base) / base) * 100;
+    return diff.toFixed(2) + '%';
+  }
 }
