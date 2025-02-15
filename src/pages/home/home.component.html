@@ -1,31 +1,23 @@
 <div class="container">
   <ng-container *ngIf="tracks$ | async as tracks; else loading">
-    <div class="container1">
-      <div class="container_tracks">
-        <div class="tracks">
-          <ng-container *ngFor="let item of tracks">
-            <mat-card class="mat-card" [style]="{ backgroundColor: item.bgColor }">
-              <div class="mat-card-header">
-                <span [style]="{ color: item.direction, fontSize: item.symbol === 'BTCUSDT' ? '32px' : 'inherit' }">
-                  {{ item.symbol.slice(0, -4) }}
-                </span>
-                <span>{{ prices[item.symbol] || '-' }}</span>
-              </div>
-              <div class="container_data">
-                <div>
-                  <mat-card-content>
-                    D: {{ item.createdAt.slice(0, 10) }} {{ item.createdAt.slice(11) }}
-                  </mat-card-content>
-                </div>
-                <div>
-                  <mat-card-content>H: {{ item.highPrice }}</mat-card-content>
-                  <mat-card-content>L: {{ item.lowPrice }}</mat-card-content>
-                </div>
-              </div>
-            </mat-card>
-          </ng-container>
-        </div>
-      </div>
+    <div class="tracks">
+      <ng-container *ngFor="let item of tracks">
+        <mat-card class="mat-card" [style]="{ backgroundColor: item.bgColor }">
+          <div class="mat-card-header">
+            <span [style]="{ color: item.direction, fontSize: item.symbol === 'BTCUSDT' ? '32px' : 'inherit' }">
+              {{ item.symbol.slice(0, -4) }}
+            </span>
+            <span>{{ prices[item.symbol] }}</span>
+          </div>
+          <div class="container_data">
+            <mat-card-content>
+              D: {{ item.createdAt.slice(0, 10) }} {{ item.createdAt.slice(11) }}
+            </mat-card-content>
+            <mat-card-content>H: {{ item.highPrice }}</mat-card-content>
+            <mat-card-content>L: {{ item.lowPrice }}</mat-card-content>
+          </div>
+        </mat-card>
+      </ng-container>
     </div>
   </ng-container>
 
