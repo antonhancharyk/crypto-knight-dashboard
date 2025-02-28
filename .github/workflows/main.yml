@@ -39,8 +39,8 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "./docker-compose.yml, ./config"
-          target: "./${{ env.IMAGE_NAME }}"
+          source: './docker-compose.yml, ./config'
+          target: './${{ env.IMAGE_NAME }}'
 
       - name: Deploy
         uses: appleboy/ssh-action@master
@@ -51,6 +51,6 @@ jobs:
           script: |
             cd ${{ env.IMAGE_NAME }}
             docker login -u ${{ env.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
-            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-            docker-compose down
-            docker-compose up -d
+            docker-compose pull
+            docker-compose up -d --remove-orphans
+            docker image prune -f
