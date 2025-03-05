@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Observable, Subject, Subscription } from 'rxjs';
-import { switchMap, takeUntil, tap } from 'rxjs/operators';
+import { Observable, Subject } from 'rxjs';
+import { switchMap, takeUntil, tap, map } from 'rxjs/operators';
 import { MatCardModule } from '@angular/material/card';
 import { DateTime } from 'luxon';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -97,6 +97,11 @@ export class HomeComponent implements OnInit, OnDestroy {
     const to = now.set({ minute: 59, second: 59 }).toFormat('yyyy-MM-dd HH:mm:ss');
 
     return this.tracksService.getTracks({ from, to, symbol: '', full: true }).pipe(
+      map((tracks) => {
+        return tracks
+          .filter((track) => track.highPrice != 0 || track.lowPrice != 0)
+          .sort((a, b) => a.symbol.localeCompare(b.symbol));
+      }),
       tap((tracks) => {
         tracks.forEach((item) => {
           const date = DateTime.fromISO(item.createdAt, { zone: 'utc' }).setZone('UTC+3');

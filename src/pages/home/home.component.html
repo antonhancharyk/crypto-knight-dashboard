@@ -1,8 +1,5 @@
 <div class="container">
   <ng-container *ngIf="tracks$ | async as tracks; else loading">
-    <!-- <div class="settings">
-      <mat-slide-toggle [checked]="true">Show positions</mat-slide-toggle>
-    </div> -->
     <div class="tracks">
       <ng-container *ngFor="let item of tracks">
         <mat-card class="mat-card" [style]="{ backgroundColor: item.bgColor }">
