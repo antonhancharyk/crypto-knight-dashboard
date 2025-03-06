@@ -131,11 +131,24 @@ export class HomeComponent implements OnInit, OnDestroy {
     const highDiff = this.getPercentageDiff(item.highPrice, this.prices[item.symbol]) <= 2;
     const lowDiff = this.getPercentageDiff(item.lowPrice, this.prices[item.symbol]) <= 2;
 
-    if (highDiff) {
+    if (!item.isOrder && highDiff) {
       return '#ceffc2';
     }
-    if (lowDiff) {
+    if (!item.isOrder && lowDiff) {
       return '#ffc2c2';
+    }
+    return '';
+  }
+
+  getPositionDirection(item: Track): string {
+    const highDiff = +(item.positionAmt || 0) > 0;
+    const lowDiff = +(item.positionAmt || 0) < 0;
+
+    if (item.isOrder && highDiff) {
+      return 'green';
+    }
+    if (item.isOrder && lowDiff) {
+      return 'red';
     }
     return '';
   }

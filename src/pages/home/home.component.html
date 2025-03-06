@@ -9,28 +9,16 @@
           }"
         >
           <div class="mat-card-header">
-            <span>
+            <span
+              [style]="{
+                color: getPositionDirection(item),
+              }"
+            >
               {{ item.symbol.slice(0, -4) }}
             </span>
             <span>{{ prices[item.symbol] }}</span>
           </div>
           <div *ngIf="item.isOrder" class="container_order_data">
-            @if (+(item.positionAmt || 0) > 0) {
-              <mat-icon
-                class="order_icon arrow_upward"
-                aria-hidden="false"
-                aria-label="home"
-                [fontIcon]="'arrow_upward'"
-              ></mat-icon>
-            }
-            @if (+(item.positionAmt || 0) < 0) {
-              <mat-icon
-                class="order_icon arrow_downward"
-                aria-hidden="false"
-                aria-label="home"
-                [fontIcon]="'arrow_downward'"
-              ></mat-icon>
-            }
             <mat-card-content>{{ item.entryPrice | number }}</mat-card-content>
             <mat-card-content
               ><span>
