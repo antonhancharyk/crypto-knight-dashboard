@@ -2,31 +2,57 @@
   <ng-container *ngIf="tracks$ | async as tracks; else loading">
     <div class="tracks">
       <ng-container *ngFor="let item of tracks">
-        <mat-card class="mat-card" [style]="{ backgroundColor: item.bgColor }">
+        <mat-card
+          class="mat-card"
+          [style]="{
+            backgroundColor: getDirection(item),
+          }"
+        >
           <div class="mat-card-header">
-            <span
-              [style]="{
-                color: item.direction,
-              }"
-            >
+            <span>
               {{ item.symbol.slice(0, -4) }}
             </span>
             <span>{{ prices[item.symbol] }}</span>
           </div>
-          <div class="container_data">
-            <div class="price">
+          <div *ngIf="item.isOrder" class="container_order_data">
+            @if (+(item.positionAmt || 0) > 0) {
+              <mat-icon
+                class="order_icon arrow_upward"
+                aria-hidden="false"
+                aria-label="home"
+                [fontIcon]="'arrow_upward'"
+              ></mat-icon>
+            }
+            @if (+(item.positionAmt || 0) < 0) {
+              <mat-icon
+                class="order_icon arrow_downward"
+                aria-hidden="false"
+                aria-label="home"
+                [fontIcon]="'arrow_downward'"
+              ></mat-icon>
+            }
+            <mat-card-content
+              ><span>
+                {{
+                  getPercentageDiff(+(item.entryPrice || 0), prices[item.symbol]).toFixed(2) + '%'
+                }}
+              </span></mat-card-content
+            >
+          </div>
+          <div *ngIf="!item.isOrder" class="container_data">
+            <div *ngIf="item.highPrice > 0" class="price">
               <mat-card-content>H: {{ item.highPrice }}</mat-card-content>
               <mat-card-content
                 ><span>
-                  {{ percentageChange(item.highPrice, prices[item.symbol]) }}
+                  {{ getPercentageDiff(item.highPrice, prices[item.symbol]).toFixed(2) + '%' }}
                 </span></mat-card-content
               >
             </div>
-            <div class="price">
+            <div *ngIf="item.lowPrice > 0" class="price">
               <mat-card-content>L: {{ item.lowPrice }}</mat-card-content>
               <mat-card-content>
                 <span>
-                  {{ percentageChange(item.lowPrice, prices[item.symbol]) }}
+                  {{ getPercentageDiff(item.lowPrice, prices[item.symbol]).toFixed(2) + '%' }}
                 </span></mat-card-content
               >
             </div>

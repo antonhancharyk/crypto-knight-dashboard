@@ -15,4 +15,6 @@ export interface Track {
   takeProfitHighPrices: number[];
   takeProfitLowPrices: number[];
   bgColor?: string;
+  positionAmt?: string;
+  entryPrice?: string;
 }

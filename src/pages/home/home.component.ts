@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
+import { Observable, Subject, forkJoin } from 'rxjs';
 import { switchMap, takeUntil, tap, map } from 'rxjs/operators';
 import { MatCardModule } from '@angular/material/card';
 import { DateTime } from 'luxon';
@@ -62,6 +62,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     private tracksService: TracksServices,
     private authService: AuthService,
     private wsService: BinanceWebSocketService,
+    private priceService: BinancePriceService,
   ) {}
 
   ngOnInit() {
@@ -70,7 +71,34 @@ export class HomeComponent implements OnInit, OnDestroy {
         if (!isActive || !this.authService.getToken()) {
           return new Observable<Track[]>();
         }
-        return this.getTracks();
+
+        const now = DateTime.local().minus({ hours: 3 });
+        const from = now.set({ minute: 0, second: 0 }).toFormat('yyyy-MM-dd HH:mm:ss');
+        const to = now.set({ minute: 59, second: 59 }).toFormat('yyyy-MM-dd HH:mm:ss');
+
+        return forkJoin({
+          tracks: this.tracksService.getTracks({ from, to, symbol: '', full: true }),
+          positions: this.priceService.getPositions(),
+        }).pipe(
+          map(({ tracks, positions }) => {
+            return tracks
+              .filter(
+                (track) => track.highPrice !== 0 || track.lowPrice !== 0 || positions[track.symbol],
+              )
+              .map((track) => {
+                if (positions[track.symbol]) {
+                  return {
+                    ...track,
+                    isOrder: true,
+                    positionAmt: positions[track.symbol].positionAmt,
+                    entryPrice: positions[track.symbol].entryPrice,
+                  };
+                }
+                return track;
+              })
+              .sort((a, b) => a.symbol.localeCompare(b.symbol));
+          }),
+        );
       }),
       takeUntil(this.destroy$),
     );
@@ -91,32 +119,24 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.wsService.close();
   }
 
-  getTracks(): Observable<Track[]> {
-    const now = DateTime.local().minus({ hours: 3 });
-    const from = now.set({ minute: 0, second: 0 }).toFormat('yyyy-MM-dd HH:mm:ss');
-    const to = now.set({ minute: 59, second: 59 }).toFormat('yyyy-MM-dd HH:mm:ss');
-
-    return this.tracksService.getTracks({ from, to, symbol: '', full: true }).pipe(
-      map((tracks) => {
-        return tracks
-          .filter((track) => track.highPrice != 0 || track.lowPrice != 0)
-          .sort((a, b) => a.symbol.localeCompare(b.symbol));
-      }),
-      tap((tracks) => {
-        tracks.forEach((item) => {
-          const date = DateTime.fromISO(item.createdAt, { zone: 'utc' }).setZone('UTC+3');
-          item.createdAt = date.toFormat('yyyy-MM-dd HH:mm');
-        });
-      }),
-    );
-  }
-
-  percentageChange(value: number, base: number): string {
+  getPercentageDiff(value: number, base: number): number {
     if (!value || !base) {
-      return '';
+      return 100;
     }
 
-    const diff = Math.abs(((value - base) / base) * 100);
-    return diff.toFixed(2) + '%';
+    return Math.abs(((value - base) / base) * 100);
+  }
+
+  getDirection(item: Track): string {
+    const highDiff = this.getPercentageDiff(item.highPrice, this.prices[item.symbol]) <= 2;
+    const lowDiff = this.getPercentageDiff(item.lowPrice, this.prices[item.symbol]) <= 2;
+
+    if (highDiff) {
+      return '#ceffc2';
+    }
+    if (lowDiff) {
+      return '#ffc2c2';
+    }
+    return '';
   }
 }

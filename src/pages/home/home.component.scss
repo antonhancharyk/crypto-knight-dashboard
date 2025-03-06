@@ -55,3 +55,17 @@
   display: flex;
   justify-content: space-between;
 }
+
+.container_order_data {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.arrow_upward {
+  color: #ceffc2;
+}
+
+.arrow_downward {
+  color: #ffc2c2;
+}
