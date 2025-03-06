@@ -23,8 +23,8 @@
 
 .tracks {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(136px, 1fr));
+  gap: 1rem;
   align-items: stretch;
 }
 
@@ -46,8 +46,8 @@
 .mat-card-header {
   display: flex;
   justify-content: space-between;
-  font-size: 1.5rem;
-  line-height: 2rem;
+  font-size: 1rem;
+  line-height: 1.25rem;
   font-weight: 500;
 }
 

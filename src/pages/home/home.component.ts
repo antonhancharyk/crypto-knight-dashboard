@@ -116,7 +116,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       return '';
     }
 
-    const diff = ((value - base) / base) * 100;
+    const diff = Math.abs(((value - base) / base) * 100);
     return diff.toFixed(2) + '%';
   }
 }
