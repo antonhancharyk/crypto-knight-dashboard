@@ -1,5 +1,16 @@
 <div class="container">
   <ng-container *ngIf="tracks$ | async as tracks; else loading">
+    <div>
+      <span class="mat-card-header">Positions: {{ countPositions }}</span>
+    </div>
+    <div>
+      <span class="mat-card-header">Ready tracks: {{ countReadyTracks }}</span>
+    </div>
+    <div>
+      <span class="mat-card-header"
+        >Rest tracks: {{ 100 - countPositions - countReadyTracks }}</span
+      >
+    </div>
     <div class="tracks">
       <ng-container *ngFor="let item of tracks">
         <mat-card
@@ -10,10 +21,14 @@
         >
           <div class="mat-card-header">
             <span
+              *ngIf="item.isOrder"
               [style]="{
-                color: getPositionDirection(item),
+                color: getColorPositionDirection(item),
               }"
             >
+              {{ item.symbol.slice(0, -4) }}
+            </span>
+            <span *ngIf="!item.isOrder">
               {{ item.symbol.slice(0, -4) }}
             </span>
             <span>{{ prices[item.symbol] }}</span>
@@ -21,7 +36,11 @@
           <div *ngIf="item.isOrder" class="container_order_data">
             <mat-card-content>{{ item.entryPrice | number }}</mat-card-content>
             <mat-card-content
-              ><span>
+              ><span
+                [style]="{
+                  color: getColorPositionPercentage(item),
+                }"
+              >
                 {{
                   getPercentageDiff(+(item.entryPrice || 0), prices[item.symbol]).toFixed(2) + '%'
                 }}

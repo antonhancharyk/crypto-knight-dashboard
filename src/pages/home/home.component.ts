@@ -27,6 +27,7 @@ import {
   BinanceWebSocketService,
 } from '../../services';
 import { Track } from '../../entities/track';
+import { PositionRisk } from '../../entities/price';
 
 @Component({
   selector: 'app-home',
@@ -57,6 +58,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   tracks$: Observable<Track[]> = new Observable();
   prices: { [key: string]: number } = {};
+  countPositions: number = 0;
+  countReadyTracks: number = 0;
 
   constructor(
     private tracksService: TracksServices,
@@ -81,22 +84,28 @@ export class HomeComponent implements OnInit, OnDestroy {
           positions: this.priceService.getPositions(),
         }).pipe(
           map(({ tracks, positions }) => {
-            return tracks
-              .filter(
-                (track) => track.highPrice !== 0 || track.lowPrice !== 0 || positions[track.symbol],
-              )
-              .map((track) => {
-                if (positions[track.symbol]) {
-                  return {
-                    ...track,
-                    isOrder: true,
-                    positionAmt: positions[track.symbol].positionAmt,
-                    entryPrice: positions[track.symbol].entryPrice,
-                  };
-                }
-                return track;
+            const positionTracks = tracks
+              .filter((item) => {
+                return positions[item.symbol];
+              })
+              .map((item) => {
+                return {
+                  ...positions[item.symbol],
+                  ...item,
+                  isOrder: true,
+                };
               })
               .sort((a, b) => a.symbol.localeCompare(b.symbol));
+            const restTracks = tracks
+              .filter((item) => {
+                return !positions[item.symbol] && (item.highPrice !== 0 || item.lowPrice !== 0);
+              })
+              .sort((a, b) => a.symbol.localeCompare(b.symbol));
+
+            this.countPositions = positionTracks.length;
+            this.countReadyTracks = restTracks.length;
+
+            return [...positionTracks, ...restTracks];
           }),
         );
       }),
@@ -140,14 +149,46 @@ export class HomeComponent implements OnInit, OnDestroy {
     return '';
   }
 
+  getColorPositionDirection(item: Track): string {
+    const positionDirection = this.getPositionDirection(item);
+
+    if (positionDirection === 'long') {
+      return 'green';
+    }
+    if (positionDirection === 'short') {
+      return 'red';
+    }
+    return '';
+  }
+
   getPositionDirection(item: Track): string {
     const highDiff = +(item.positionAmt || 0) > 0;
     const lowDiff = +(item.positionAmt || 0) < 0;
 
-    if (item.isOrder && highDiff) {
+    if (highDiff) {
+      return 'long';
+    }
+    if (lowDiff) {
+      return 'short';
+    }
+    return '';
+  }
+
+  getColorPositionPercentage(item: Track): string {
+    const positionDirection = this.getPositionDirection(item);
+    const entryPrice = +(item.entryPrice || 0);
+    const cPrice = this.prices[item.symbol];
+
+    if (positionDirection === 'long' && cPrice > entryPrice) {
       return 'green';
     }
-    if (item.isOrder && lowDiff) {
+    if (positionDirection === 'long' && cPrice < entryPrice) {
+      return 'red';
+    }
+    if (positionDirection === 'short' && cPrice < entryPrice) {
+      return 'green';
+    }
+    if (positionDirection === 'short' && cPrice > entryPrice) {
       return 'red';
     }
     return '';
