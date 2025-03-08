@@ -57,9 +57,14 @@ import { PositionRisk } from '../../entities/price';
 export class HomeComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   tracks$: Observable<Track[]> = new Observable();
+  tracks: Track[] = [];
   prices: { [key: string]: number } = {};
   countPositions: number = 0;
   countReadyTracks: number = 0;
+  countLongPositions: number = 0;
+  countShortPositions: number = 0;
+  countGoodPositions: number = 0;
+  countBadPositions: number = 0;
 
   constructor(
     private tracksService: TracksServices,
@@ -96,6 +101,7 @@ export class HomeComponent implements OnInit, OnDestroy {
                 };
               })
               .sort((a, b) => a.symbol.localeCompare(b.symbol));
+
             const restTracks = tracks
               .filter((item) => {
                 return !positions[item.symbol] && (item.highPrice !== 0 || item.lowPrice !== 0);
@@ -103,9 +109,17 @@ export class HomeComponent implements OnInit, OnDestroy {
               .sort((a, b) => a.symbol.localeCompare(b.symbol));
 
             this.countPositions = positionTracks.length;
+            this.countLongPositions = positionTracks.filter((item) => {
+              return +item.positionAmt > 0;
+            }).length;
+            this.countShortPositions = positionTracks.filter((item) => {
+              return +item.positionAmt < 0;
+            }).length;
             this.countReadyTracks = restTracks.length;
 
-            return [...positionTracks, ...restTracks];
+            this.tracks = [...positionTracks, ...restTracks];
+
+            return this.tracks;
           }),
         );
       }),
@@ -119,6 +133,12 @@ export class HomeComponent implements OnInit, OnDestroy {
         data.forEach((ticker: any) => {
           this.prices[ticker.s] = parseFloat(ticker.c);
         });
+
+        const positions = this.tracks
+          .filter((item) => item.isOrder)
+          .map((item) => this.getColorPositionPercentage(item));
+        this.countGoodPositions = positions.filter((item) => item === 'green').length;
+        this.countBadPositions = positions.filter((item) => item === 'red').length;
       });
   }
 
@@ -136,7 +156,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     return Math.abs(((value - base) / base) * 100);
   }
 
-  getDirection(item: Track): string {
+  getColorTrackDirection(item: Track): string {
     const highDiff = this.getPercentageDiff(item.highPrice, this.prices[item.symbol]) <= 2;
     const lowDiff = this.getPercentageDiff(item.lowPrice, this.prices[item.symbol]) <= 2;
 
@@ -145,18 +165,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
     if (!item.isOrder && lowDiff) {
       return '#ffc2c2';
-    }
-    return '';
-  }
-
-  getColorPositionDirection(item: Track): string {
-    const positionDirection = this.getPositionDirection(item);
-
-    if (positionDirection === 'long') {
-      return 'green';
-    }
-    if (positionDirection === 'short') {
-      return 'red';
     }
     return '';
   }
@@ -170,6 +178,18 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
     if (lowDiff) {
       return 'short';
+    }
+    return '';
+  }
+
+  getColorPositionDirection(item: Track): string {
+    const positionDirection = this.getPositionDirection(item);
+
+    if (positionDirection === 'long') {
+      return 'green';
+    }
+    if (positionDirection === 'short') {
+      return 'red';
     }
     return '';
   }

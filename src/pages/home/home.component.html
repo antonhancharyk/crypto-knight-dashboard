@@ -1,58 +1,72 @@
 <div class="container">
   <ng-container *ngIf="tracks$ | async as tracks; else loading">
-    <div>
-      <span class="mat-card-header">Positions: {{ countPositions }}</span>
+    <div class="container__info">
+      <div>
+        <span class="mat-card-header">Positions: {{ countPositions }}</span>
+      </div>
+      <div>
+        <span class="mat-card-header">Long positions: {{ countLongPositions }}</span>
+      </div>
+      <div>
+        <span class="mat-card-header">Short positions: {{ countShortPositions }}</span>
+      </div>
+      <div>
+        <span class="mat-card-header">Good positions: {{ countGoodPositions }}</span>
+      </div>
+      <div>
+        <span class="mat-card-header">Bad positions: {{ countBadPositions }}</span>
+      </div>
+      <div>
+        <span class="mat-card-header">Ready tracks: {{ countReadyTracks }}</span>
+      </div>
     </div>
-    <div>
-      <span class="mat-card-header">Ready tracks: {{ countReadyTracks }}</span>
-    </div>
-    <div>
-      <span class="mat-card-header"
-        >Rest tracks: {{ 100 - countPositions - countReadyTracks }}</span
-      >
-    </div>
+
     <div class="tracks">
-      <ng-container *ngFor="let item of tracks">
+      <ng-container *ngFor="let item of tracks; let i = index">
         <mat-card
           class="mat-card"
+          [ngClass]="{
+            long: getPositionDirection(item) === 'long',
+            short: getPositionDirection(item) === 'short',
+          }"
           [style]="{
-            backgroundColor: getDirection(item),
+            backgroundColor: getColorTrackDirection(item),
           }"
         >
           <div class="mat-card-header">
-            <span
-              *ngIf="item.isOrder"
-              [style]="{
-                color: getColorPositionDirection(item),
-              }"
-            >
-              {{ item.symbol.slice(0, -4) }}
-            </span>
-            <span *ngIf="!item.isOrder">
+            <span>
               {{ item.symbol.slice(0, -4) }}
             </span>
             <span>{{ prices[item.symbol] }}</span>
           </div>
           <div *ngIf="item.isOrder" class="container_order_data">
             <mat-card-content>{{ item.entryPrice | number }}</mat-card-content>
-            <mat-card-content
-              ><span
+            <div class="mat-card-header">
+              <span
                 [style]="{
                   color: getColorPositionPercentage(item),
                 }"
               >
                 {{
-                  getPercentageDiff(+(item.entryPrice || 0), prices[item.symbol]).toFixed(2) + '%'
+                  prices[item.symbol]
+                    ? getPercentageDiff(+(item.entryPrice || 0), prices[item.symbol]).toFixed(2) +
+                      '%'
+                    : ''
                 }}
-              </span></mat-card-content
-            >
+              </span>
+            </div>
           </div>
+
           <div *ngIf="!item.isOrder" class="container_data">
             <div *ngIf="item.highPrice > 0" class="price">
               <mat-card-content>H: {{ item.highPrice }}</mat-card-content>
               <mat-card-content
                 ><span>
-                  {{ getPercentageDiff(item.highPrice, prices[item.symbol]).toFixed(2) + '%' }}
+                  {{
+                    prices[item.symbol]
+                      ? getPercentageDiff(item.highPrice, prices[item.symbol]).toFixed(2) + '%'
+                      : ''
+                  }}
                 </span></mat-card-content
               >
             </div>
@@ -60,12 +74,18 @@
               <mat-card-content>L: {{ item.lowPrice }}</mat-card-content>
               <mat-card-content>
                 <span>
-                  {{ getPercentageDiff(item.lowPrice, prices[item.symbol]).toFixed(2) + '%' }}
+                  {{
+                    prices[item.symbol]
+                      ? getPercentageDiff(item.lowPrice, prices[item.symbol]).toFixed(2) + '%'
+                      : ''
+                  }}
                 </span></mat-card-content
               >
             </div>
           </div>
         </mat-card>
+
+        <div *ngIf="tracks[i].isOrder && !tracks[i + 1].isOrder" class="break"></div>
       </ng-container>
     </div>
   </ng-container>
