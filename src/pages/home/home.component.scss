@@ -95,3 +95,9 @@
   grid-column: 1 / -1;
   height: 2rem;
 }
+
+.container__info {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}

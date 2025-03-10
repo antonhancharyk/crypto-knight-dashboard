@@ -2,22 +2,26 @@
   <ng-container *ngIf="tracks$ | async as tracks; else loading">
     <div class="container__info">
       <div>
-        <span class="mat-card-header">Positions: {{ countPositions }}</span>
+        <div>
+          <span class="mat-card-header">Positions: {{ countPositions }}</span>
+        </div>
+        <div>
+          <span class="mat-card-header">Long positions: {{ countLongPositions }}</span>
+        </div>
+        <div>
+          <span class="mat-card-header">Short positions: {{ countShortPositions }}</span>
+        </div>
       </div>
       <div>
-        <span class="mat-card-header">Long positions: {{ countLongPositions }}</span>
-      </div>
-      <div>
-        <span class="mat-card-header">Short positions: {{ countShortPositions }}</span>
-      </div>
-      <div>
-        <span class="mat-card-header">Good positions: {{ countGoodPositions }}</span>
-      </div>
-      <div>
-        <span class="mat-card-header">Bad positions: {{ countBadPositions }}</span>
-      </div>
-      <div>
-        <span class="mat-card-header">Ready tracks: {{ countReadyTracks }}</span>
+        <div>
+          <span class="mat-card-header">Good positions: {{ countGoodPositions }}</span>
+        </div>
+        <div>
+          <span class="mat-card-header">Bad positions: {{ countBadPositions }}</span>
+        </div>
+        <div>
+          <span class="mat-card-header">Ready tracks: {{ countReadyTracks }}</span>
+        </div>
       </div>
     </div>
 
@@ -39,22 +43,27 @@
             </span>
             <span>{{ prices[item.symbol] }}</span>
           </div>
-          <div *ngIf="item.isOrder" class="container_order_data">
-            <mat-card-content>{{ item.entryPrice | number }}</mat-card-content>
-            <div class="mat-card-header">
-              <span
-                [style]="{
-                  color: getColorPositionPercentage(item),
-                }"
-              >
-                {{
-                  prices[item.symbol]
-                    ? getPercentageDiff(+(item.entryPrice || 0), prices[item.symbol]).toFixed(2) +
-                      '%'
-                    : ''
-                }}
-              </span>
+
+          <div *ngIf="item.isOrder">
+            <div class="container_order_data">
+              <mat-card-content>E: {{ item.entryPrice | number }}</mat-card-content>
+              <div class="mat-card-header">
+                <span
+                  [style]="{
+                    color: getColorPositionPercentage(item),
+                  }"
+                >
+                  {{
+                    prices[item.symbol]
+                      ? getPercentageDiff(+(item.entryPrice || 0), prices[item.symbol]).toFixed(2) +
+                        '%'
+                      : ''
+                  }}
+                </span>
+              </div>
             </div>
+            <mat-card-content *ngIf="item.highPrice > 0">H: {{ item.highPrice }}</mat-card-content>
+            <mat-card-content *ngIf="item.lowPrice > 0">L: {{ item.lowPrice }}</mat-card-content>
           </div>
 
           <div *ngIf="!item.isOrder" class="container_data">
