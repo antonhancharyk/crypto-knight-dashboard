@@ -87,8 +87,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         return forkJoin({
           tracks: this.tracksService.getTracks({ from, to, symbol: '', full: true }),
           positions: this.priceService.getPositions(),
+          prices: this.priceService.getPrices(),
         }).pipe(
-          map(({ tracks, positions }) => {
+          map(({ tracks, positions, prices }) => {
             const positionTracks = tracks
               .filter((item) => {
                 return positions[item.symbol];
@@ -116,8 +117,13 @@ export class HomeComponent implements OnInit, OnDestroy {
               return +item.positionAmt < 0;
             }).length;
             this.countReadyTracks = restTracks.length;
-
             this.tracks = [...positionTracks, ...restTracks];
+            prices.forEach((price) => {
+              this.prices[price.symbol] = price.price;
+            });
+            const positions2 = positionTracks.map((item) => this.getColorPositionPercentage(item));
+            this.countGoodPositions = positions2.filter((item) => item === 'green').length;
+            this.countBadPositions = positions2.filter((item) => item === 'red').length;
 
             return this.tracks;
           }),
