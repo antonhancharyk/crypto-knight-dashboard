@@ -62,11 +62,9 @@
                 </span>
               </div>
             </div>
-            <mat-card-content *ngIf="item.highPrice > 0">H: {{ item.highPrice }}</mat-card-content>
-            <mat-card-content *ngIf="item.lowPrice > 0">L: {{ item.lowPrice }}</mat-card-content>
           </div>
 
-          <div *ngIf="!item.isOrder" class="container_data">
+          <div class="container_data">
             <div *ngIf="item.highPrice > 0" class="price">
               <mat-card-content>H: {{ item.highPrice }}</mat-card-content>
               <mat-card-content
