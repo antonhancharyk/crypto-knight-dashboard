@@ -92,7 +92,10 @@
           </div>
         </mat-card>
 
-        <div *ngIf="tracks[i].isOrder && !tracks[i + 1].isOrder" class="break"></div>
+        <div
+          *ngIf="tracks[i].isOrder && tracks[i + 1] && !tracks[i + 1].isOrder"
+          class="break"
+        ></div>
       </ng-container>
     </div>
   </ng-container>

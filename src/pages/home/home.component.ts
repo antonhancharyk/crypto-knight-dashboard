@@ -90,20 +90,18 @@ export class HomeComponent implements OnInit, OnDestroy {
           prices: this.priceService.getPrices(),
         }).pipe(
           map(({ tracks, positions, prices }) => {
-            const positionTracks = tracks
-              .filter((item) => {
-                return positions[item.symbol];
-              })
-              .map((item) => {
-                return {
-                  ...positions[item.symbol],
-                  ...item,
-                  isOrder: true,
-                };
-              })
-              .sort((a, b) => a.symbol.localeCompare(b.symbol));
+            const uniqueTracks = Array.from(
+              new Map(tracks.map((item) => [item.symbol, item])).values(),
+            );
 
-            const restTracks = tracks
+            const positionTracks = Object.values(positions)
+              .map((item) => {
+                const track = uniqueTracks.find((track) => track.symbol === item.symbol);
+                return { ...item, ...track, isOrder: true };
+              })
+              .sort((a, b) => a.symbol.localeCompare(b.symbol)) as unknown as Track[];
+
+            const restTracks = uniqueTracks
               .filter((item) => {
                 return !positions[item.symbol] && (item.highPrice !== 0 || item.lowPrice !== 0);
               })
@@ -111,19 +109,20 @@ export class HomeComponent implements OnInit, OnDestroy {
 
             this.countPositions = positionTracks.length;
             this.countLongPositions = positionTracks.filter((item) => {
-              return +item.positionAmt > 0;
+              return +(item.positionAmt as string) > 0;
             }).length;
             this.countShortPositions = positionTracks.filter((item) => {
-              return +item.positionAmt < 0;
+              return +(item.positionAmt as string) < 0;
             }).length;
             this.countReadyTracks = restTracks.length;
-            this.tracks = [...positionTracks, ...restTracks];
             prices.forEach((price) => {
               this.prices[price.symbol] = price.price;
             });
             const positions2 = positionTracks.map((item) => this.getColorPositionPercentage(item));
             this.countGoodPositions = positions2.filter((item) => item === 'green').length;
             this.countBadPositions = positions2.filter((item) => item === 'red').length;
+
+            this.tracks = [...positionTracks, ...restTracks];
 
             return this.tracks;
           }),
