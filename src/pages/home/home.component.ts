@@ -25,9 +25,10 @@ import {
   BinancePriceService,
   AuthService,
   BinanceWebSocketService,
+  BinanceBalanceService,
 } from '../../services';
 import { Track } from '../../entities/track';
-import { PositionRisk } from '../../entities/price';
+import { Balance } from '../../entities/balance';
 
 @Component({
   selector: 'app-home',
@@ -50,7 +51,13 @@ import { PositionRisk } from '../../entities/price';
     MatExpansionModule,
     MatSlideToggleModule,
   ],
-  providers: [CommonService, TracksServices, provideNativeDateAdapter(), BinancePriceService],
+  providers: [
+    CommonService,
+    TracksServices,
+    provideNativeDateAdapter(),
+    BinancePriceService,
+    BinanceBalanceService,
+  ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })
@@ -65,13 +72,25 @@ export class HomeComponent implements OnInit, OnDestroy {
   countShortPositions: number = 0;
   countGoodPositions: number = 0;
   countBadPositions: number = 0;
+  balance: Balance = {
+    accountAlias: '',
+    asset: '',
+    crossWalletBalance: '',
+    balance: '',
+    crossUnPnl: '',
+    availableBalance: '',
+    maxWithdrawAmount: '',
+    marginAvailable: true,
+    updateTime: 0,
+  };
 
   constructor(
     private tracksService: TracksServices,
     private authService: AuthService,
     private wsService: BinanceWebSocketService,
     private priceService: BinancePriceService,
-  ) {}
+    private balanceService: BinanceBalanceService,
+  ) { }
 
   ngOnInit() {
     this.tracks$ = this.authService.isAuthReady$.pipe(
@@ -88,8 +107,9 @@ export class HomeComponent implements OnInit, OnDestroy {
           tracks: this.tracksService.getTracks({ from, to, symbol: '', full: true }),
           positions: this.priceService.getPositions(),
           prices: this.priceService.getPrices(),
+          balance: this.balanceService.getBalance(),
         }).pipe(
-          map(({ tracks, positions, prices }) => {
+          map(({ tracks, positions, prices, balance }) => {
             const uniqueTracks = Array.from(
               new Map(tracks.map((item) => [item.symbol, item])).values(),
             );
@@ -121,6 +141,8 @@ export class HomeComponent implements OnInit, OnDestroy {
             const positions2 = positionTracks.map((item) => this.getColorPositionPercentage(item));
             this.countGoodPositions = positions2.filter((item) => item === 'green').length;
             this.countBadPositions = positions2.filter((item) => item === 'red').length;
+
+            this.balance = balance;
 
             this.tracks = [...positionTracks, ...restTracks];
 

@@ -8,6 +8,14 @@
       <span class="good-positions">{{ countGoodPositions }}</span>
       <span class="bad-positions">{{ countBadPositions }}</span>
     </div>
+    <div class="container__info">
+      <span>Balance:</span>
+      <span>{{ balance.availableBalance }}</span>
+    </div>
+    <div class="container__info">
+      <span>Available positions:</span>
+      <span>{{ ((+balance.availableBalance - countPositions * 2.5) / 2 / 2.5).toFixed() }}</span>
+    </div>
     <div class="tracks">
       <ng-container *ngFor="let item of tracks; let i = index">
         <mat-card
