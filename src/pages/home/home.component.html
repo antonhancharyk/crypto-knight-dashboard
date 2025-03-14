@@ -1,28 +1,10 @@
 <div class="container">
   <ng-container *ngIf="tracks$ | async as tracks; else loading">
     <div class="container__info">
-      <div>
-        <div>
-          <span class="mat-card-header">Positions: {{ countPositions }}</span>
-        </div>
-        <div>
-          <span class="mat-card-header">Long positions: {{ countLongPositions }}</span>
-        </div>
-        <div>
-          <span class="mat-card-header">Short positions: {{ countShortPositions }}</span>
-        </div>
-      </div>
-      <div>
-        <div>
-          <span class="mat-card-header">Good positions: {{ countGoodPositions }}</span>
-        </div>
-        <div>
-          <span class="mat-card-header">Bad positions: {{ countBadPositions }}</span>
-        </div>
-        <div>
-          <span class="mat-card-header">Ready tracks: {{ countReadyTracks }}</span>
-        </div>
-      </div>
+      <span>📈{{ countLongPositions }}</span>
+      <span>📉{{ countShortPositions }}</span>
+      <span class="good-positions">{{ countGoodPositions }}</span>
+      <span class="bad-positions">{{ countBadPositions }}</span>
     </div>
 
     <div class="tracks">
