@@ -1,13 +1,12 @@
 <div class="container">
   <ng-container *ngIf="tracks$ | async as tracks; else loading">
     <div class="container__info">
+      <span>Positions:</span>
+      <span>{{ countPositions }}</span>
       <span>📈{{ countLongPositions }}</span>
       <span>📉{{ countShortPositions }}</span>
       <span class="good-positions">{{ countGoodPositions }}</span>
       <span class="bad-positions">{{ countBadPositions }}</span>
-    </div>
-
-    <div class="tracks">
       <ng-container *ngFor="let item of tracks; let i = index">
         <mat-card
           class="mat-card"
