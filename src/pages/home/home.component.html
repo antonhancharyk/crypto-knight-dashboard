@@ -7,6 +7,8 @@
       <span>📉{{ countShortPositions }}</span>
       <span class="good-positions">{{ countGoodPositions }}</span>
       <span class="bad-positions">{{ countBadPositions }}</span>
+    </div>
+    <div class="tracks">
       <ng-container *ngFor="let item of tracks; let i = index">
         <mat-card
           class="mat-card"
