@@ -10,7 +10,9 @@
     </div>
     <div class="container__info">
       <span>Balance:</span>
-      <span>{{ balance.availableBalance }}</span>
+      <span>a:{{ (+balance.availableBalance).toFixed(2) }}</span>
+      <span>b:{{ (+balance.balance).toFixed(2) }}</span>
+      <span>u:{{ (+balance.crossUnPnl).toFixed(2) }}</span>
     </div>
     <div class="container__info">
       <span>Available positions:</span>
