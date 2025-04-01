@@ -24,7 +24,7 @@ while :; do
       echo "Certificate found. Checking expiry date."
     #   expiry_date=$(openssl x509 -enddate -noout -in "$cert_path" | cut -d= -f2)
     #   expiry_seconds=$(date -d "$expiry_date" +%s)
-      expiry_seconds=$(openssl x509 -enddate -noout -in "$cert_path" | cut -d= -f2 | xargs -I {} date -d "{}" +%s)      
+      expiry_seconds=$(openssl x509 -enddate -noout -in "$cert_path" | cut -d= -f2 | xargs -I {} date -u -d "{}" +%s)
       current_seconds=$(date +%s)
       diff_seconds=$((expiry_seconds - current_seconds))
 
