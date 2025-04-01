@@ -22,14 +22,16 @@ while :; do
       fi
   else
       echo "Certificate found. Checking expiry date."
-      expiry_date=$(openssl x509 -enddate -noout -in "$cert_path" | cut -d= -f2)
-      expiry_seconds=$(date -d "$expiry_date" +%s)
+    #   expiry_date=$(openssl x509 -enddate -noout -in "$cert_path" | cut -d= -f2)
+    #   expiry_seconds=$(date -d "$expiry_date" +%s)
+      expiry_seconds=$(openssl x509 -enddate -noout -in "$cert_path" | cut -d= -f2 | xargs -I {} date --date="TZ=\"GMT\" {}" +%s)
       current_seconds=$(date +%s)
       diff_seconds=$((expiry_seconds - current_seconds))
 
       if [ "$diff_seconds" -le 2592000 ]; then
           echo "Certificate is expiring in less than 30 days. Renewing."
-          certbot renew --deploy-hook "docker exec app nginx -s reload"
+        #   certbot renew --deploy-hook "docker exec app nginx -s reload"
+          certbot renew
 
           if [ $? -eq 0 ]; then
               echo "Certificate renewed successfully and nginx reloaded."
