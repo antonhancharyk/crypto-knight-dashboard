@@ -70,7 +70,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
   constructor(
     private tracksService: TracksServices,
     private binancePriceService: BinancePriceService,
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.filteredSymbols = this.symbolControl.valueChanges.pipe(
@@ -219,5 +219,17 @@ export class HistoryComponent implements OnInit, OnDestroy {
     const input = event.target as HTMLInputElement;
     input.value = input.value.toUpperCase();
     this.symbolControl.setValue(input.value);
+  }
+
+  getColorLevel(prices: number[], price: number): string {
+    const max = Math.max(...prices);
+    const min = Math.min(...prices);
+    if (max === price) {
+      return 'green';
+    }
+    if (min === price) {
+      return 'red';
+    }
+    return '';
   }
 }
