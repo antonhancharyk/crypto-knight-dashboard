@@ -1,6 +1,6 @@
 export const Q1 = 25;
 export const REDIRECT_TO_SSO =
-  'https://ssoauth.online/login?app=crypto-knight&redirect_uri=https://crypto-knight.online';
+  'https://ssoauth.online/login?app=crypto-knight&redirect_uri=https://crypto-knight.site';
 export const SYMBOLS = [
   'SANDUSDT',
   'OPUSDT',
@@ -281,6 +281,6 @@ export const SYMBOLS = [
   'ZKUSDT',
 ];
 export const SSO_API_URI = 'https://ssoauth.online';
-export const API_URI = 'https://api.crypto-knight.online';
+export const API_URI = 'https://api.crypto-knight.site';
 export const BINANCE_API_URI = 'https://fapi.binance.com';
 export const WS_TICKER_API_URI = 'wss://fstream.binance.com/ws/!ticker@arr';

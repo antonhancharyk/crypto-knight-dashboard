@@ -10,7 +10,7 @@ services:
     entrypoint: /start_certbot.sh
     environment:
       - CERTBOT_EMAIL=ant.goncharik.development@gmail.com
-      - CERTBOT_DOMAIN=crypto-knight.online
+      - CERTBOT_DOMAIN=crypto-knight.site
 
   app:
     container_name: app

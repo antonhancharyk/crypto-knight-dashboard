@@ -29,7 +29,7 @@ interface GetTracksParams {
 
 @Injectable()
 export class TracksServices {
-  private apiUrl = 'https://api.crypto-knight.online';
+  private apiUrl = 'https://api.crypto-knight.site';
 
   constructor(private http: HttpClient) {}
 
