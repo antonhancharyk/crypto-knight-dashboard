@@ -10,7 +10,7 @@ export class TokenInterceptor implements HttpInterceptor {
   constructor(private authService: AuthService) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    if (req.url.includes('ssoauth.online/exchange') || req.url.includes('ssoauth.online/refresh')) {
+    if (req.url.includes('sso-auth.site/exchange') || req.url.includes('sso-auth.site/refresh')) {
       return next.handle(req);
     }
 
