@@ -88,7 +88,6 @@ export const SYMBOLS = [
   'ALICEUSDT',
   'HBARUSDT',
   'ONEUSDT',
-  'STMXUSDT',
   'DENTUSDT',
   'CELRUSDT',
   'HOTUSDT',
@@ -202,6 +201,7 @@ export const SYMBOLS = [
   'AIUSDT',
   'XAIUSDT',
   'WIFUSDT',
+  'ENAUSDT',
 ];
 export const SSO_API_URI = 'https://sso-auth.site';
 export const API_URI = 'https://api.crypto-knight.site';
