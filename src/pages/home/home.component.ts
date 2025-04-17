@@ -184,14 +184,14 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   getColorTrackDirection(item: Track): string {
-    const highDiff = this.getPercentageDiff(item.highPrice, this.prices[item.symbol]) <= 2;
-    const lowDiff = this.getPercentageDiff(item.lowPrice, this.prices[item.symbol]) <= 2;
+    const highDiff = this.getPercentageDiff(item.highPrice, this.prices[item.symbol]) <= 1;
+    const lowDiff = this.getPercentageDiff(item.lowPrice, this.prices[item.symbol]) <= 1;
 
     if (!item.isOrder && highDiff) {
-      return '#ceffc2';
+      return '#ebffe8';
     }
     if (!item.isOrder && lowDiff) {
-      return '#ffc2c2';
+      return '#ebd4d4';
     }
     return '';
   }

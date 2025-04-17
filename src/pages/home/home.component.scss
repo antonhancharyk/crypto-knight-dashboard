@@ -33,6 +33,10 @@
   padding: 0.5rem;
   overflow: hidden;
 
+  &.home-card {
+    height: 6rem;
+  }
+
   &.long {
     &::before {
       content: '';
@@ -91,9 +95,35 @@
   align-items: center;
 }
 
-.break {
-  grid-column: 1 / -1;
+.divider {
+  display: flex;
   height: 2rem;
+  grid-column: 1 / -1;
+
+  &:before,
+  &:after {
+    content: '';
+    flex: 1;
+  }
+}
+
+.donotcross {
+  overflow: hidden;
+  align-items: center;
+  background: hsl(50, 100%, 50%);
+  color: black;
+  height: 2rem;
+  line-height: 2rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+
+  &:before,
+  &:after {
+    background: white;
+    padding: 50px 0;
+    height: 0;
+    transform: rotate(45deg);
+  }
 }
 
 .container__info {
@@ -110,4 +140,8 @@
 
 .bad-positions {
   color: red;
+}
+
+.highlighted {
+  font-weight: 700;
 }

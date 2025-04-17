@@ -22,7 +22,7 @@
     <div class="tracks">
       <ng-container *ngFor="let item of tracks; let i = index">
         <mat-card
-          class="mat-card"
+          class="mat-card home-card"
           [ngClass]="{
             long: getPositionDirection(item) === 'long',
             short: getPositionDirection(item) === 'short',
@@ -35,7 +35,7 @@
             <span>
               {{ item.symbol.slice(0, -4) }}
             </span>
-            <span>{{ prices[item.symbol] }}</span>
+            <span class="highlighted">{{ prices[item.symbol] }}</span>
           </div>
 
           <div *ngIf="item.isOrder">
@@ -43,6 +43,7 @@
               <mat-card-content>E: {{ item.entryPrice | number }}</mat-card-content>
               <div class="mat-card-header">
                 <span
+                  class="highlighted"
                   [style]="{
                     color: getColorPositionPercentage(item),
                   }"
@@ -88,8 +89,10 @@
 
         <div
           *ngIf="tracks[i].isOrder && tracks[i + 1] && !tracks[i + 1].isOrder"
-          class="break"
-        ></div>
+          class="divider donotcross"
+        >
+          Do not cross
+        </div>
       </ng-container>
     </div>
   </ng-container>
