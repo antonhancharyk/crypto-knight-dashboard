@@ -1,6 +1,6 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Observable, Subject, forkJoin } from 'rxjs';
-import { switchMap, takeUntil, tap, map } from 'rxjs/operators';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Observable, Subject, forkJoin, Subscription } from 'rxjs';
+import { switchMap, takeUntil, map } from 'rxjs/operators';
 import { MatCardModule } from '@angular/material/card';
 import { DateTime } from 'luxon';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -18,6 +18,7 @@ import { CommonModule } from '@angular/common';
 import { MatInputModule } from '@angular/material/input';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatDialog } from '@angular/material/dialog';
 
 import {
   CommonService,
@@ -26,9 +27,13 @@ import {
   AuthService,
   BinanceWebSocketService,
   BinanceBalanceService,
+  BinanceKlineService,
 } from '../../services';
 import { Track } from '../../entities/track';
 import { Balance } from '../../entities/balance';
+import { Kline } from '../../entities/kline';
+import { KlineSeriesChartComponent } from '../../features/binance/kline-series-chart/kline-series-chart.component';
+import { ModalComponent } from '../../components/modal/modal.component';
 
 @Component({
   selector: 'app-home',
@@ -57,6 +62,7 @@ import { Balance } from '../../entities/balance';
     provideNativeDateAdapter(),
     BinancePriceService,
     BinanceBalanceService,
+    BinanceKlineService,
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
@@ -83,6 +89,9 @@ export class HomeComponent implements OnInit, OnDestroy {
     marginAvailable: true,
     updateTime: 0,
   };
+  dialog = inject(MatDialog);
+  isLoadingKlines: boolean = false;
+  private klineSub?: Subscription;
 
   constructor(
     private tracksService: TracksServices,
@@ -90,7 +99,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     private wsService: BinanceWebSocketService,
     private priceService: BinancePriceService,
     private balanceService: BinanceBalanceService,
-  ) { }
+    private klineService: BinanceKlineService,
+  ) {}
 
   ngOnInit() {
     this.tracks$ = this.authService.isAuthReady$.pipe(
@@ -239,5 +249,35 @@ export class HomeComponent implements OnInit, OnDestroy {
       return 'red';
     }
     return '';
+  }
+
+  openKlineChart(item: Track) {
+    this.klineSub?.unsubscribe();
+
+    this.isLoadingKlines = true;
+
+    this.klineSub = this.klineService
+      .getKlines(item.symbol)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (klines: Kline[]) => {
+          this.dialog.open(ModalComponent, {
+            data: {
+              component: KlineSeriesChartComponent,
+              componentInputs: {
+                klines,
+                track: item,
+                current: this.prices[item.symbol],
+              },
+            },
+          });
+        },
+        error: () => {
+          this.isLoadingKlines = false;
+        },
+        complete: () => {
+          this.isLoadingKlines = false;
+        },
+      });
   }
 }

@@ -59,6 +59,7 @@
               [style]="{
                 backgroundColor: item.bgColor,
               }"
+              (click)="openKlineChart(item)"
             >
               <div class="mat-card-header">
                 <span
@@ -70,6 +71,7 @@
                 >
                 <span>{{ +prices[item.symbol] }}</span>
               </div>
+
               <div class="container_data">
                 <div>
                   <mat-card-content
@@ -114,6 +116,12 @@
           }
         </div>
       </div>
+    </div>
+  }
+
+  @if (isLoadingKlines) {
+    <div class="container_spinner_over">
+      <mat-spinner></mat-spinner>
     </div>
   }
 </div>

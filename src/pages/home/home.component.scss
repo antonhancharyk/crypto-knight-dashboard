@@ -14,6 +14,13 @@
   align-items: center;
 }
 
+.container_spinner_over {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+}
+
 .filter {
   display: flex;
   flex-direction: column;
@@ -32,10 +39,8 @@
   width: 100%;
   padding: 0.5rem;
   overflow: hidden;
-
-  &.home-card {
-    height: 6rem;
-  }
+  height: 6rem;
+  cursor: pointer;
 
   &.long {
     &::before {
@@ -120,7 +125,7 @@
   &:before,
   &:after {
     background: white;
-    padding: 50px 0;
+    padding: 25px 0;
     height: 0;
     transform: rotate(45deg);
   }

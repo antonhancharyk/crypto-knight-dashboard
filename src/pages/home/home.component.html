@@ -22,7 +22,7 @@
     <div class="tracks">
       <ng-container *ngFor="let item of tracks; let i = index">
         <mat-card
-          class="mat-card home-card"
+          class="mat-card"
           [ngClass]="{
             long: getPositionDirection(item) === 'long',
             short: getPositionDirection(item) === 'short',
@@ -30,6 +30,7 @@
           [style]="{
             backgroundColor: getColorTrackDirection(item),
           }"
+          (click)="openKlineChart(item)"
         >
           <div class="mat-card-header">
             <span>
@@ -96,6 +97,12 @@
       </ng-container>
     </div>
   </ng-container>
+
+  @if (isLoadingKlines) {
+    <div class="container_spinner_over">
+      <mat-spinner></mat-spinner>
+    </div>
+  }
 
   <ng-template #loading>
     <div class="container_spinner">

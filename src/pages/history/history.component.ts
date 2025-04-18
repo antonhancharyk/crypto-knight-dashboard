@@ -1,5 +1,5 @@
-import { Component, OnDestroy, OnInit, ChangeDetectionStrategy, signal } from '@angular/core';
-import { Observable, Subscription, startWith, map } from 'rxjs';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Observable, Subscription, startWith, map, Subject } from 'rxjs';
 import { MatCardModule } from '@angular/material/card';
 import { DateTime } from 'luxon';
 import { FormGroup, FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -16,12 +16,20 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { CommonModule } from '@angular/common';
 import { MatInputModule } from '@angular/material/input';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { Subject } from 'rxjs';
-import { switchMap, takeUntil, tap } from 'rxjs/operators';
+import { takeUntil } from 'rxjs/operators';
+import { MatDialog } from '@angular/material/dialog';
 
-import { CommonService, TracksServices, BinancePriceService, AuthService } from '../../services';
+import {
+  CommonService,
+  TracksServices,
+  BinancePriceService,
+  BinanceKlineService,
+} from '../../services';
 import { Track } from '../../entities/track';
 import { Q1, SYMBOLS } from '../../constants';
+import { KlineSeriesChartComponent } from '../../features/binance/kline-series-chart/kline-series-chart.component';
+import { ModalComponent } from '../../components/modal/modal.component';
+import { Kline } from '../../entities/kline';
 
 @Component({
   selector: 'app-home',
@@ -43,11 +51,18 @@ import { Q1, SYMBOLS } from '../../constants';
     MatInputModule,
     MatExpansionModule,
   ],
-  providers: [CommonService, TracksServices, provideNativeDateAdapter(), BinancePriceService],
+  providers: [
+    CommonService,
+    TracksServices,
+    provideNativeDateAdapter(),
+    BinancePriceService,
+    BinanceKlineService,
+  ],
   templateUrl: './history.component.html',
   styleUrl: './history.component.scss',
 })
 export class HistoryComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   private tracksSubscription: Subscription = new Subscription();
   private pricesSubscription: Subscription = new Subscription();
   tracks: Track[] = [];
@@ -64,32 +79,27 @@ export class HistoryComponent implements OnInit, OnDestroy {
   symbolControl = new FormControl<string>('');
   fullControl = new FormControl(false);
   filteredSymbols: Observable<string[]> | undefined;
-  // private destroy$ = new Subject<void>();
   tracks$: Observable<Track[]> = new Observable();
+  dialog = inject(MatDialog);
+  isLoadingKlines: boolean = false;
+  private klineSub?: Subscription;
 
   constructor(
     private tracksService: TracksServices,
     private binancePriceService: BinancePriceService,
-  ) { }
+    private klineService: BinanceKlineService,
+  ) {}
 
   ngOnInit() {
     this.filteredSymbols = this.symbolControl.valueChanges.pipe(
       startWith(''),
       map((value) => this._filter(value || '')),
     );
-
-    // this.tracks$ = this.authService.isAuthReady$.pipe(
-    //   switchMap((isActive) => {
-    //     if (!isActive || !this.authService.getToken()) {
-    //       return new Observable<Track[]>()
-    //     };
-    //     return this.getTracks();
-    //   }),
-    //   takeUntil(this.destroy$)
-    // );
   }
 
   ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
     this.tracksSubscription.unsubscribe();
     this.pricesSubscription.unsubscribe();
   }
@@ -231,5 +241,35 @@ export class HistoryComponent implements OnInit, OnDestroy {
       return 'red';
     }
     return '';
+  }
+
+  openKlineChart(item: Track) {
+    this.klineSub?.unsubscribe();
+
+    this.isLoadingKlines = true;
+
+    this.klineSub = this.klineService
+      .getKlines(item.symbol)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (klines: Kline[]) => {
+          this.dialog.open(ModalComponent, {
+            data: {
+              component: KlineSeriesChartComponent,
+              componentInputs: {
+                klines,
+                track: item,
+                current: this.prices[item.symbol],
+              },
+            },
+          });
+        },
+        error: () => {
+          this.isLoadingKlines = false;
+        },
+        complete: () => {
+          this.isLoadingKlines = false;
+        },
+      });
   }
 }
