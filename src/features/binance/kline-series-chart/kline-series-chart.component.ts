@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild, Input } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, Input, AfterViewInit } from '@angular/core';
 import { createChart, CandlestickSeries } from 'lightweight-charts';
 
 import { Kline } from '../../../entities/kline';
@@ -9,13 +9,13 @@ import { Track } from '../../../entities/track';
   standalone: true,
   templateUrl: './kline-series-chart.component.html',
 })
-export class KlineSeriesChartComponent implements OnInit {
+export class KlineSeriesChartComponent implements OnInit, AfterViewInit {
   @ViewChild('chartContainer', { static: true }) chartContainer!: ElementRef;
   @Input() klines!: Kline[];
   @Input() current!: number;
   @Input() track!: Track;
 
-  constructor() {}
+  constructor() { }
 
   ngOnInit(): void {
     const chart = createChart(this.chartContainer.nativeElement, {
@@ -74,5 +74,13 @@ export class KlineSeriesChartComponent implements OnInit {
         lineStyle: 0,
         axisLabelVisible: true,
       });
+  }
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      const dialogContent = document.querySelector('.mat-mdc-dialog-content');
+      if (dialogContent) {
+        dialogContent.scrollLeft = dialogContent.scrollWidth;
+      }
+    }, 200);
   }
 }
