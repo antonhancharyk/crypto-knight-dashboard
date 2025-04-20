@@ -7,18 +7,12 @@
   margin-bottom: 1rem;
 }
 
-.container_spinner {
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 .container_spinner_over {
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translateX(-50%) translateY(-50%);
+  z-index: 1;
 }
 
 .filter {

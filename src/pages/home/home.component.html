@@ -1,112 +1,99 @@
-<div class="container">
-  <ng-container *ngIf="tracks$ | async as tracks; else loading">
-    <div class="container__info">
-      <span>Positions:</span>
-      <span>{{ countPositions }}</span>
-      <span>📈{{ countLongPositions }}</span>
-      <span>📉{{ countShortPositions }}</span>
-      <span class="good-positions">{{ countGoodPositions }}</span>
-      <span class="bad-positions">{{ countBadPositions }}</span>
-    </div>
-    <div class="container__info">
-      <span>Balance:</span>
-      <span>a:{{ (+balance.availableBalance).toFixed(2) }}</span>
-      <span>b:{{ (+balance.balance).toFixed(2) }}</span>
-      <span>u:{{ (+balance.crossUnPnl).toFixed(2) }}</span>
-      <span>c:{{ (+balance.balance + +balance.crossUnPnl).toFixed(2) }}</span>
-    </div>
-    <div class="container__info">
-      <span>Available positions:</span>
-      <span>{{ ((+balance.availableBalance - countPositions * 2.5) / 2 / 2.5).toFixed() }}</span>
-    </div>
-    <div class="tracks">
-      <ng-container *ngFor="let item of tracks; let i = index">
-        <mat-card
-          class="mat-card"
-          [ngClass]="{
-            long: getPositionDirection(item) === 'long',
-            short: getPositionDirection(item) === 'short',
-          }"
-          [style]="{
-            backgroundColor: getColorTrackDirection(item),
-          }"
-          (click)="openKlineChart(item)"
-        >
-          <div class="mat-card-header">
-            <span>
-              {{ item.symbol.slice(0, -4) }}
-            </span>
-            <span class="highlighted">{{ prices[item.symbol] }}</span>
-          </div>
+@if (isLoadingKlines || isLoadingTracks) {
+  <div class="container_spinner_over">
+    <mat-spinner></mat-spinner>
+  </div>
+}
 
-          <div *ngIf="item.isOrder">
-            <div class="container_order_data">
-              <mat-card-content>E: {{ item.entryPrice | number }}</mat-card-content>
-              <div class="mat-card-header">
-                <span
-                  class="highlighted"
-                  [style]="{
-                    color: getColorPositionPercentage(item),
-                  }"
-                >
-                  {{
-                    prices[item.symbol]
-                      ? getPercentageDiff(+(item.entryPrice || 0), prices[item.symbol]).toFixed(2) +
-                        '%'
-                      : ''
-                  }}
-                </span>
-              </div>
+<div class="container">
+  <div class="container__info">
+    <span>Positions:</span>
+    <span>{{ countPositions }}</span>
+    <span>📈{{ countLongPositions }}</span>
+    <span>📉{{ countShortPositions }}</span>
+    <span class="good-positions">{{ countGoodPositions }}</span>
+    <span class="bad-positions">{{ countBadPositions }}</span>
+  </div>
+  <div class="container__info">
+    <span>Balance:</span>
+    <span>a:{{ (+balance.availableBalance).toFixed(2) }}</span>
+    <span>b:{{ (+balance.balance).toFixed(2) }}</span>
+    <span>u:{{ (+balance.crossUnPnl).toFixed(2) }}</span>
+    <span>c:{{ (+balance.balance + +balance.crossUnPnl).toFixed(2) }}</span>
+  </div>
+  <div class="container__info">
+    <span>Available positions:</span>
+    <span>{{ ((+balance.availableBalance - countPositions * 2.5) / 2 / 2.5).toFixed() }}</span>
+  </div>
+  <div class="tracks">
+    <ng-container *ngFor="let track of tracks; let i = index">
+      <!-- [style]="{ -->
+      <!--   backgroundColor: !item.isOrder && (isLong(item) ? '#ebffe8' : '#ebd4d4'), -->
+      <!-- }" -->
+      <mat-card
+        class="mat-card"
+        [ngClass]="{
+          long: track.isOrder && isLong(track),
+          short: track.isOrder && !isLong(track),
+        }"
+        (click)="openKlineChart(track)"
+      >
+        <div class="mat-card-header">
+          <span>
+            {{ track.symbol.slice(0, -4) }}
+          </span>
+          <span class="highlighted">{{ prices[track.symbol] }}</span>
+        </div>
+
+        <div *ngIf="track.isOrder">
+          <div class="container_order_data">
+            <mat-card-content>E: {{ track.entryPrice | number }}</mat-card-content>
+            <div class="mat-card-header">
+              <span
+                class="highlighted"
+                [style]="{
+                  color: getFormattedColorPositionPercentageDiff(track),
+                }"
+              >
+                {{ getFormattedPositionPercentageDiff(track) }}
+              </span>
             </div>
           </div>
+        </div>
 
-          <div class="container_data">
-            <div *ngIf="item.highPrice > 0" class="price">
-              <mat-card-content>H: {{ item.highPrice }}</mat-card-content>
-              <mat-card-content
-                ><span>
-                  {{
+        <div class="container_data">
+          <div *ngIf="track.highPrice > 0" class="price">
+            <mat-card-content>H: {{ track.highPrice }}</mat-card-content>
+            <mat-card-content
+              ><span>
+                <!-- {{
                     prices[item.symbol]
                       ? getPercentageDiff(item.highPrice, prices[item.symbol]).toFixed(2) + '%'
                       : ''
-                  }}
-                </span></mat-card-content
-              >
-            </div>
-            <div *ngIf="item.lowPrice > 0" class="price">
-              <mat-card-content>L: {{ item.lowPrice }}</mat-card-content>
-              <mat-card-content>
-                <span>
-                  {{
+                  }} -->
+              </span></mat-card-content
+            >
+          </div>
+          <div *ngIf="track.lowPrice > 0" class="price">
+            <mat-card-content>L: {{ track.lowPrice }}</mat-card-content>
+            <mat-card-content>
+              <span>
+                <!-- {{
                     prices[item.symbol]
                       ? getPercentageDiff(item.lowPrice, prices[item.symbol]).toFixed(2) + '%'
                       : ''
-                  }}
-                </span></mat-card-content
-              >
-            </div>
+                  }} -->
+              </span></mat-card-content
+            >
           </div>
-        </mat-card>
-
-        <div
-          *ngIf="tracks[i].isOrder && tracks[i + 1] && !tracks[i + 1].isOrder"
-          class="divider donotcross"
-        >
-          Do not cross
         </div>
-      </ng-container>
-    </div>
-  </ng-container>
+      </mat-card>
 
-  @if (isLoadingKlines) {
-    <div class="container_spinner_over">
-      <mat-spinner></mat-spinner>
-    </div>
-  }
-
-  <ng-template #loading>
-    <div class="container_spinner">
-      <mat-spinner></mat-spinner>
-    </div>
-  </ng-template>
+      <div
+        *ngIf="tracks[i].isOrder && tracks[i + 1] && !tracks[i + 1].isOrder"
+        class="divider donotcross"
+      >
+        Do not cross
+      </div>
+    </ng-container>
+  </div>
 </div>

@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { Observable, Subject, forkJoin, Subscription } from 'rxjs';
+import { Observable, Subject, forkJoin, Subscription, of } from 'rxjs';
 import { switchMap, takeUntil, map } from 'rxjs/operators';
 import { MatCardModule } from '@angular/material/card';
 import { DateTime } from 'luxon';
@@ -32,6 +32,7 @@ import {
 import { Track } from '../../entities/track';
 import { Balance } from '../../entities/balance';
 import { Kline } from '../../entities/kline';
+import { Price, PositionRisk } from '../../entities/price';
 import { KlineSeriesChartComponent } from '../../features/binance/kline-series-chart/kline-series-chart.component';
 import { ModalComponent } from '../../components/modal/modal.component';
 
@@ -69,7 +70,6 @@ import { ModalComponent } from '../../components/modal/modal.component';
 })
 export class HomeComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
-  tracks$: Observable<Track[]> = new Observable();
   tracks: Track[] = [];
   prices: { [key: string]: number } = {};
   countPositions: number = 0;
@@ -91,6 +91,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   };
   dialog = inject(MatDialog);
   isLoadingKlines: boolean = false;
+  isLoadingTracks: boolean = false;
   private klineSub?: Subscription;
 
   constructor(
@@ -103,65 +104,74 @@ export class HomeComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.tracks$ = this.authService.isAuthReady$.pipe(
-      switchMap((isActive) => {
-        if (!isActive || !this.authService.getToken()) {
-          return new Observable<Track[]>();
-        }
+    this.isLoadingTracks = true;
 
-        const now = DateTime.local().minus({ hours: 3 });
-        const from = now.set({ minute: 0, second: 0 }).toFormat('yyyy-MM-dd HH:mm:ss');
-        const to = now.set({ minute: 59, second: 59 }).toFormat('yyyy-MM-dd HH:mm:ss');
-
-        return forkJoin({
-          tracks: this.tracksService.getTracks({ from, to, symbol: '', full: true }),
-          positions: this.priceService.getPositions(),
-          prices: this.priceService.getPrices(),
-          balance: this.balanceService.getBalance(),
-        }).pipe(
-          map(({ tracks, positions, prices, balance }) => {
-            const uniqueTracks = Array.from(
-              new Map(tracks.map((item) => [item.symbol, item])).values(),
-            );
-
-            const positionTracks = Object.values(positions)
-              .map((item) => {
-                const track = uniqueTracks.find((track) => track.symbol === item.symbol);
-                return { ...item, ...track, isOrder: true };
-              })
-              .sort((a, b) => a.symbol.localeCompare(b.symbol)) as unknown as Track[];
-
-            const restTracks = uniqueTracks
-              .filter((item) => {
-                return !positions[item.symbol] && (item.highPrice !== 0 || item.lowPrice !== 0);
-              })
-              .sort((a, b) => a.symbol.localeCompare(b.symbol));
-
-            this.countPositions = positionTracks.length;
-            this.countLongPositions = positionTracks.filter((item) => {
-              return +(item.positionAmt as string) > 0;
-            }).length;
-            this.countShortPositions = positionTracks.filter((item) => {
-              return +(item.positionAmt as string) < 0;
-            }).length;
-            this.countReadyTracks = restTracks.length;
-            prices.forEach((price) => {
-              this.prices[price.symbol] = price.price;
+    this.authService.isAuthReady$
+      .pipe(
+        switchMap((isActive) => {
+          if (!isActive || !this.authService.getToken()) {
+            return of({
+              tracks: [] as Track[],
+              positions: {} as { [key: string]: PositionRisk },
+              prices: [] as Price[],
+              balance: {} as Balance,
             });
-            const positions2 = positionTracks.map((item) => this.getColorPositionPercentage(item));
-            this.countGoodPositions = positions2.filter((item) => item === 'green').length;
-            this.countBadPositions = positions2.filter((item) => item === 'red').length;
+          }
 
-            this.balance = balance;
+          const now = DateTime.local().minus({ hours: 3 });
+          const from = now.set({ minute: 0, second: 0 }).toFormat('yyyy-MM-dd HH:mm:ss');
+          const to = now.set({ minute: 59, second: 59 }).toFormat('yyyy-MM-dd HH:mm:ss');
 
-            this.tracks = [...positionTracks, ...restTracks];
+          return forkJoin({
+            tracks: this.tracksService.getTracks({ from, to, symbol: '', full: true }),
+            positions: this.priceService.getPositions(),
+            prices: this.priceService.getPrices(),
+            balance: this.balanceService.getBalance(),
+          });
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe({
+        next: ({ tracks, positions, prices, balance }) => {
+          const uniqueTracks = Array.from(
+            new Map(tracks.map((item) => [item.symbol, item])).values(),
+          );
 
-            return this.tracks;
-          }),
-        );
-      }),
-      takeUntil(this.destroy$),
-    );
+          const positionTracks = Object.values(positions).map((item) => {
+            const track = uniqueTracks.find((track) => track.symbol === item.symbol);
+            return { ...item, ...track, isOrder: true };
+          });
+
+          const restTracks = uniqueTracks
+            .filter((item) => {
+              return !positions[item.symbol] && (item.highPrice !== 0 || item.lowPrice !== 0);
+            })
+            .sort((a, b) => a.symbol.localeCompare(b.symbol));
+
+          this.countPositions = positionTracks.length;
+          this.countLongPositions = positionTracks.filter((item) => +item.positionAmt > 0).length;
+          this.countShortPositions = positionTracks.filter((item) => +item.positionAmt < 0).length;
+          this.countReadyTracks = restTracks.length;
+
+          // @ts-ignore
+          const positions2 = positionTracks.map((item) => this.getPositionPercentageDiff(item));
+          this.countGoodPositions = positions2.filter((item) => item > 0).length;
+          this.countBadPositions = positions2.filter((item) => item < 0).length;
+
+          prices.forEach((price) => {
+            this.prices[price.symbol] = price.price;
+          });
+          this.balance = balance;
+          // @ts-ignore
+          this.tracks = [...positionTracks, ...restTracks];
+
+          this.isLoadingTracks = false;
+        },
+        error: (err) => {
+          this.isLoadingTracks = false;
+          console.error(err);
+        },
+      });
 
     this.wsService
       .connect()
@@ -172,10 +182,26 @@ export class HomeComponent implements OnInit, OnDestroy {
         });
 
         const positions = this.tracks
-          .filter((item) => item.isOrder)
-          .map((item) => this.getColorPositionPercentage(item));
-        this.countGoodPositions = positions.filter((item) => item === 'green').length;
-        this.countBadPositions = positions.filter((item) => item === 'red').length;
+          .filter((track) => track.isOrder)
+          .map((item) => this.getPositionPercentageDiff(item));
+
+        this.countGoodPositions = positions.filter((item) => item > 0).length;
+        this.countBadPositions = positions.filter((item) => item < 0).length;
+
+        const positions2 = this.tracks
+          .filter((track) => {
+            return track.isOrder;
+          })
+          .sort((a, b) => {
+            const aa = this.getPositionPercentageDiff(a);
+            const bb = this.getPositionPercentageDiff(b);
+            return bb - aa;
+          });
+        const rest = this.tracks.filter((track) => {
+          return !track.isOrder;
+        });
+
+        this.tracks = [...positions2, ...rest];
       });
   }
 
@@ -189,64 +215,33 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (!value || !base) {
       return 100;
     }
-
-    return Math.abs(((value - base) / base) * 100);
+    return ((value - base) / base) * 100;
   }
 
-  getColorTrackDirection(item: Track): string {
-    const highDiff = this.getPercentageDiff(item.highPrice, this.prices[item.symbol]) <= 1;
-    const lowDiff = this.getPercentageDiff(item.lowPrice, this.prices[item.symbol]) <= 1;
+  isLong(track: Track): boolean {
+    return +(track.positionAmt || 0) > 0;
+  }
 
-    if (!item.isOrder && highDiff) {
-      return '#ebffe8';
+  getPositionPercentageDiff(track: Track): number {
+    if (this.isLong(track)) {
+      return this.getPercentageDiff(this.prices[track.symbol], +(track.entryPrice || 0));
     }
-    if (!item.isOrder && lowDiff) {
-      return '#ebd4d4';
+    if (!this.isLong(track)) {
+      return this.getPercentageDiff(+(track.entryPrice || 0), this.prices[track.symbol]);
+    }
+    return 0;
+  }
+
+  getFormattedColorPositionPercentageDiff(track: Track) {
+    if (this.prices[track.symbol]) {
+      return this.getPositionPercentageDiff(track) > 0 ? 'green' : 'red';
     }
     return '';
   }
 
-  getPositionDirection(item: Track): string {
-    const highDiff = +(item.positionAmt || 0) > 0;
-    const lowDiff = +(item.positionAmt || 0) < 0;
-
-    if (highDiff) {
-      return 'long';
-    }
-    if (lowDiff) {
-      return 'short';
-    }
-    return '';
-  }
-
-  getColorPositionDirection(item: Track): string {
-    const positionDirection = this.getPositionDirection(item);
-
-    if (positionDirection === 'long') {
-      return 'green';
-    }
-    if (positionDirection === 'short') {
-      return 'red';
-    }
-    return '';
-  }
-
-  getColorPositionPercentage(item: Track): string {
-    const positionDirection = this.getPositionDirection(item);
-    const entryPrice = +(item.entryPrice || 0);
-    const cPrice = this.prices[item.symbol];
-
-    if (positionDirection === 'long' && cPrice > entryPrice) {
-      return 'green';
-    }
-    if (positionDirection === 'long' && cPrice < entryPrice) {
-      return 'red';
-    }
-    if (positionDirection === 'short' && cPrice < entryPrice) {
-      return 'green';
-    }
-    if (positionDirection === 'short' && cPrice > entryPrice) {
-      return 'red';
+  getFormattedPositionPercentageDiff(track: Track) {
+    if (this.prices[track.symbol]) {
+      return this.getPositionPercentageDiff(track).toFixed(2) + '%';
     }
     return '';
   }
