@@ -35,7 +35,7 @@
           long: track.isOrder && isLong(track),
           short: track.isOrder && !isLong(track),
         }"
-        (click)="openKlineChart(track)"
+        (dblclick)="openKlineChart(track)"
       >
         <div class="mat-card-header">
           <span>
