@@ -35,12 +35,14 @@
           long: track.isOrder && isLong(track),
           short: track.isOrder && !isLong(track),
         }"
-        (dblclick)="openKlineChart(track)"
       >
         <div class="mat-card-header">
-          <span>
-            {{ track.symbol.slice(0, -4) }}
-          </span>
+          <div>
+            <span>
+              {{ track.symbol.slice(0, -4) }}
+            </span>
+            <span class="chart-icon" (click)="openKlineChart(track)">📈</span>
+          </div>
           <span class="highlighted">{{ prices[track.symbol] }}</span>
         </div>
 
