@@ -162,8 +162,15 @@ export class HomeComponent implements OnInit, OnDestroy {
             this.prices[price.symbol] = price.price;
           });
           this.balance = balance;
-          // @ts-ignore
-          this.tracks = [...positionTracks, ...restTracks];
+
+          const btc = tracks.find((track) => track.symbol === 'BTCUSDT');
+          if (btc) {
+            // @ts-ignore
+            this.tracks = [btc, ...positionTracks, ...restTracks];
+          } else {
+            // @ts-ignore
+            this.tracks = [...positionTracks, ...restTracks];
+          }
 
           this.isLoadingTracks = false;
         },
@@ -201,7 +208,12 @@ export class HomeComponent implements OnInit, OnDestroy {
           return !track.isOrder;
         });
 
-        this.tracks = [...positions2, ...rest];
+        const btc = this.tracks.find((track) => track.symbol === 'BTCUSDT');
+        if (btc) {
+          this.tracks = [btc, ...positions2, ...rest];
+        } else {
+          this.tracks = [...positions2, ...rest];
+        }
       });
   }
 
