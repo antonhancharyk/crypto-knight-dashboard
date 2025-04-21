@@ -163,14 +163,8 @@ export class HomeComponent implements OnInit, OnDestroy {
           });
           this.balance = balance;
 
-          const btc = tracks.find((track) => track.symbol === 'BTCUSDT');
-          if (btc) {
-            // @ts-ignore
-            this.tracks = [btc, ...positionTracks, ...restTracks];
-          } else {
-            // @ts-ignore
-            this.tracks = [...positionTracks, ...restTracks];
-          }
+          // @ts-ignore
+          this.tracks = [...positionTracks, ...restTracks];
 
           this.isLoadingTracks = false;
         },
@@ -208,11 +202,12 @@ export class HomeComponent implements OnInit, OnDestroy {
           return !track.isOrder;
         });
 
-        const btc = this.tracks.find((track) => track.symbol === 'BTCUSDT');
+        const tracks = [...positions2, ...rest];
+        const btc = tracks.find((track) => track.symbol === 'BTCUSDT');
         if (btc) {
-          this.tracks = [btc, ...positions2, ...rest];
+          this.tracks = [btc, ...tracks.filter((track) => track.symbol !== 'BTCUSDT')];
         } else {
-          this.tracks = [...positions2, ...rest];
+          this.tracks = tracks;
         }
       });
   }
