@@ -231,9 +231,13 @@ export class HistoryComponent implements OnInit, OnDestroy {
     this.symbolControl.setValue(input.value);
   }
 
-  getColorLevel(prices: number[], price: number): string {
-    const max = Math.max(...prices);
-    const min = Math.min(...prices);
+  getColorLevel(prices: number[], price: number, idx: number): string {
+    if (idx > 2) {
+      return '';
+    }
+
+    const max = Math.max(...prices.slice(0, 3));
+    const min = Math.min(...prices.slice(0, 3));
     if (max === price) {
       return 'green';
     }
