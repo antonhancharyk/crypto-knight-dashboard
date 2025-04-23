@@ -26,9 +26,6 @@
   </div>
   <div class="tracks">
     <ng-container *ngFor="let track of tracks; let i = index">
-      <!-- [style]="{ -->
-      <!--   backgroundColor: !item.isOrder && (isLong(item) ? '#ebffe8' : '#ebd4d4'), -->
-      <!-- }" -->
       <mat-card
         class="mat-card"
         [ngClass]="{
@@ -63,29 +60,11 @@
         </div>
 
         <div class="container_data">
-          <div *ngIf="track.highPrice > 0" class="price">
+          <div *ngIf="track.highPrice > 0 || track.symbol === 'BTCUSDT'" class="price">
             <mat-card-content>H: {{ track.highPrice }}</mat-card-content>
-            <mat-card-content
-              ><span>
-                <!-- {{
-                    prices[item.symbol]
-                      ? getPercentageDiff(item.highPrice, prices[item.symbol]).toFixed(2) + '%'
-                      : ''
-                  }} -->
-              </span></mat-card-content
-            >
           </div>
-          <div *ngIf="track.lowPrice > 0" class="price">
+          <div *ngIf="track.lowPrice > 0 || track.symbol === 'BTCUSDT'" class="price">
             <mat-card-content>L: {{ track.lowPrice }}</mat-card-content>
-            <mat-card-content>
-              <span>
-                <!-- {{
-                    prices[item.symbol]
-                      ? getPercentageDiff(item.lowPrice, prices[item.symbol]).toFixed(2) + '%'
-                      : ''
-                  }} -->
-              </span></mat-card-content
-            >
           </div>
         </div>
       </mat-card>

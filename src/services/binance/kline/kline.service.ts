@@ -4,13 +4,13 @@ import { map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 
 import { Kline } from '../../../entities/kline';
-import { API_URI } from '../../../constants';
+import { API_URI, BTCUSDT } from '../../../constants';
 
 @Injectable()
 export class BinanceKlineService {
   constructor(private http: HttpClient) {}
 
-  getKlines(symbol: string = 'BTCUSDT'): Observable<Kline[]> {
+  getKlines(symbol: string = BTCUSDT): Observable<Kline[]> {
     const url = `${API_URI}/klines?symbol=${symbol}`;
 
     return this.http.get<any[]>(url).pipe(

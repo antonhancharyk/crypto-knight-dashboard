@@ -35,6 +35,7 @@ import { Kline } from '../../entities/kline';
 import { Price, PositionRisk } from '../../entities/price';
 import { KlineSeriesChartComponent } from '../../features/binance/kline-series-chart/kline-series-chart.component';
 import { ModalComponent } from '../../components/modal/modal.component';
+import { BTCUSDT } from '../../constants';
 
 @Component({
   selector: 'app-home',
@@ -144,7 +145,10 @@ export class HomeComponent implements OnInit, OnDestroy {
 
           const restTracks = uniqueTracks
             .filter((item) => {
-              return !positions[item.symbol] && (item.highPrice !== 0 || item.lowPrice !== 0);
+              return (
+                (!positions[item.symbol] && (item.highPrice !== 0 || item.lowPrice !== 0)) ||
+                item.symbol === BTCUSDT
+              );
             })
             .sort((a, b) => a.symbol.localeCompare(b.symbol));
 
@@ -203,9 +207,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         });
 
         const tracks = [...positions2, ...rest];
-        const btc = tracks.find((track) => track.symbol === 'BTCUSDT');
+        const btc = tracks.find((track) => track.symbol === BTCUSDT);
         if (btc) {
-          this.tracks = [btc, ...tracks.filter((track) => track.symbol !== 'BTCUSDT')];
+          this.tracks = [btc, ...tracks.filter((track) => track.symbol !== BTCUSDT)];
         } else {
           this.tracks = tracks;
         }

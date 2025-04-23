@@ -207,3 +207,4 @@ export const SSO_API_URI = 'https://sso-auth.site';
 export const API_URI = 'https://api.crypto-knight.site';
 export const BINANCE_API_URI = 'https://fapi.binance.com';
 export const WS_TICKER_API_URI = 'wss://fstream.binance.com/ws/!ticker@arr';
+export const BTCUSDT = 'BTCUSDT';
