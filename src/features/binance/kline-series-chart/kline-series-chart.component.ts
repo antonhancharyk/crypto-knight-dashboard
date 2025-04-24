@@ -15,7 +15,7 @@ export class KlineSeriesChartComponent implements OnInit, AfterViewInit {
   @Input() current!: number;
   @Input() track!: Track;
 
-  constructor() { }
+  constructor() {}
 
   ngOnInit(): void {
     const chart = createChart(this.chartContainer.nativeElement, {
@@ -43,7 +43,9 @@ export class KlineSeriesChartComponent implements OnInit, AfterViewInit {
       wickDownColor: '#ef5350',
       priceFormat: {
         type: 'custom',
-        formatter: (price: number) => price.toFixed(8),
+        formatter: (price: number) => {
+          return price.toString();
+        },
       },
     });
 
