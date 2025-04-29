@@ -24,12 +24,15 @@ import {
   TracksServices,
   BinancePriceService,
   BinanceKlineService,
+  ExchangeInfoService,
 } from '../../services';
 import { Track } from '../../entities/track';
 import { Q1, SYMBOLS } from '../../constants';
 import { KlineSeriesChartComponent } from '../../features/binance/kline-series-chart/kline-series-chart.component';
 import { ModalComponent } from '../../components/modal/modal.component';
 import { Kline } from '../../entities/kline';
+import { getPriceTick, roundPrice } from '../../utils/price/price.utils';
+import { ExchangeInfo } from '../../entities/common';
 
 @Component({
   selector: 'app-home',
@@ -83,14 +86,25 @@ export class HistoryComponent implements OnInit, OnDestroy {
   dialog = inject(MatDialog);
   isLoadingKlines: boolean = false;
   private klineSub?: Subscription;
+  exchangeInfo: ExchangeInfo = {
+    timezone: '',
+    serverTime: 0,
+    symbols: [],
+  };
 
   constructor(
     private tracksService: TracksServices,
     private binancePriceService: BinancePriceService,
     private klineService: BinanceKlineService,
+    private exchangeInfoService: ExchangeInfoService,
   ) {}
 
   ngOnInit() {
+    this.exchangeInfoService
+      .getExchangeInfo()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((exchangeInfo) => (this.exchangeInfo = exchangeInfo));
+
     this.filteredSymbols = this.symbolControl.valueChanges.pipe(
       startWith(''),
       map((value) => this._filter(value || '')),
@@ -146,7 +160,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
             const dateLowCreatedAtInZone = dateLowCreatedAt.setZone('UTC+3');
             const lowCreatedAt = dateLowCreatedAtInZone.toFormat('yyyy-MM-dd HH:mm');
 
-            const [lowStopPrice, highStopPrice] = this.getStopLossPrices(
+            let [lowStopPrice, highStopPrice] = this.getStopLossPrices(
               item.lowPrice,
               item.highPrice,
             );
@@ -154,13 +168,21 @@ export class HistoryComponent implements OnInit, OnDestroy {
             const hour = new Date(createdAt).getHours();
             const bgColor = hour % 2 === 0 ? '#e0e0e0' : '#c0d6e4';
 
+            const tickSize = getPriceTick(this.exchangeInfo, item.symbol);
+            lowStopPrice = roundPrice(lowStopPrice, tickSize);
+            highStopPrice = roundPrice(highStopPrice, tickSize);
+            item.highPrice = roundPrice(item.highPrice, tickSize);
+            item.lowPrice = roundPrice(item.lowPrice, tickSize);
+            item.highPrices = item.highPrices.map((p) => roundPrice(p, tickSize));
+            item.lowPrices = item.lowPrices.map((p) => roundPrice(p, tickSize));
+
             return {
               ...item,
               createdAt,
               highCreatedAt,
               lowCreatedAt,
-              lowStopPrice: +lowStopPrice.toFixed(5),
-              highStopPrice: +highStopPrice.toFixed(5),
+              lowStopPrice,
+              highStopPrice,
               bgColor,
             };
           });
