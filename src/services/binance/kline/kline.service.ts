@@ -11,7 +11,7 @@ export class BinanceKlineService {
   constructor(private http: HttpClient) {}
 
   getKlines(symbol: string = BTCUSDT): Observable<Kline[]> {
-    const url = `${API_URI}/markPriceKlines?symbol=${symbol}`;
+    const url = `${API_URI}/klines?symbol=${symbol}`;
 
     return this.http.get<any[]>(url).pipe(
       map((data) =>
