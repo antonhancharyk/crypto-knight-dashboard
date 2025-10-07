@@ -40,15 +40,15 @@
             </span>
             <span class="chart-icon" (click)="openKlineChart(track)">📈</span>
           </div>
-          <span class="highlighted">{{ prices[track.symbol] }}</span>
+          <span class="highlighted1">{{ prices[track.symbol] }}</span>
         </div>
 
         <div *ngIf="track.isOrder">
           <div class="container_order_data">
-            <mat-card-content>E: {{ track.entryPrice | number }}</mat-card-content>
+            <mat-card-content>E: {{ track.entryPrice | number: '1.2-6' }}</mat-card-content>
             <div class="mat-card-header">
               <span
-                class="highlighted"
+                class="highlighted1"
                 [style]="{
                   color: getFormattedColorPositionPercentageDiff(track),
                 }"
@@ -61,10 +61,13 @@
 
         <div class="container_data">
           <div *ngIf="track.highPrice > 0 || track.symbol === 'BTCUSDT'" class="price">
-            <mat-card-content>H: {{ track.highPrice }}</mat-card-content>
+            <mat-card-content>H: {{ track.highPrice | number: '1.2-6' }}</mat-card-content>
           </div>
           <div *ngIf="track.lowPrice > 0 || track.symbol === 'BTCUSDT'" class="price">
-            <mat-card-content>L: {{ track.lowPrice }}</mat-card-content>
+            <mat-card-content>L: {{ track.lowPrice | number: '1.2-6' }}</mat-card-content>
+          </div>
+          <div *ngIf="track.middlePrice && track.middlePrice > 0" class="price">
+            <mat-card-content>M: {{ track.middlePrice }}</mat-card-content>
           </div>
         </div>
       </mat-card>

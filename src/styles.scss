@@ -11,19 +11,19 @@
   margin: 0;
 }
 html {
-  font-size: 16px;
+  font-size: 12px;
   --mdc-outlined-button-container-height: 56px;
-  --mdc-form-field-label-text-size: 16px;
-  --mat-expansion-header-text-size: 16px;
-  --mdc-outlined-button-label-text-size: 16px;
+  --mdc-form-field-label-text-size: 12px;
+  --mat-expansion-header-text-size: 12px;
+  --mdc-outlined-button-label-text-size: 12px;
 }
 body {
-  line-height: 1.5;
-  font-size: 16px;
+  line-height: 1.25;
+  font-size: 12px;
   -webkit-font-smoothing: antialiased;
 
   & .mdc-form-field {
-    --mdc-form-field-label-text-size: 16px;
+    --mdc-form-field-label-text-size: 12px;
   }
   & .mat-icon {
     width: 32px !important;
@@ -33,10 +33,10 @@ body {
     font-size: 32px !important;
   }
   & .mat-typography {
-    font-size: 16px;
+    font-size: 12px;
   }
   & .mat-mdc-card-content {
-    font-size: 16px;
+    font-size: 12px;
   }
   & .mat-mdc-card-header {
     padding: 0;
@@ -45,7 +45,7 @@ body {
     padding: 0 !important;
   }
   & .mat-mdc-checkbox {
-    --mdc-form-field-label-text-size: 16px;
+    --mdc-form-field-label-text-size: 12px;
   }
 }
 input,

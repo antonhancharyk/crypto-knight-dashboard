@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { Track } from '../../entities/track';
+import { Track, LastEntry } from '../../entities/track';
 
 interface TrackResponse {
   symbol: string;
@@ -18,6 +18,14 @@ interface TrackResponse {
   low_prices: number[];
   take_profit_high_prices: number[];
   take_profit_low_prices: number[];
+}
+
+interface LastEntriesResponse {
+  symbol: string;
+  high_price: number;
+  low_price: number;
+  high_prices: number[];
+  low_prices: number[];
 }
 
 interface GetTracksParams {
@@ -57,6 +65,20 @@ export class TracksServices {
           lowPrices: track.low_prices,
           takeProfitHighPrices: track.take_profit_high_prices,
           takeProfitLowPrices: track.take_profit_low_prices,
+        }));
+      }),
+    );
+  }
+
+  getLastEntries(): Observable<LastEntry[]> {
+    return this.http.get<LastEntriesResponse[]>(this.apiUrl + '/entries').pipe(
+      map((lastEntries) => {
+        return lastEntries.map((lastEntry) => ({
+          symbol: lastEntry.symbol,
+          highPrice: lastEntry.high_price,
+          lowPrice: lastEntry.low_price,
+          highPrices: lastEntry.high_prices,
+          lowPrices: lastEntry.low_prices,
         }));
       }),
     );

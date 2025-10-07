@@ -17,4 +17,13 @@ export interface Track {
   bgColor?: string;
   positionAmt?: string;
   entryPrice?: string;
+  middlePrice?: number;
+}
+
+export interface LastEntry {
+  symbol: string;
+  highPrice: number;
+  lowPrice: number;
+  highPrices: number[];
+  lowPrices: number[];
 }

@@ -29,7 +29,7 @@ import {
   BinanceBalanceService,
   BinanceKlineService,
 } from '../../services';
-import { Track } from '../../entities/track';
+import { Track, LastEntry } from '../../entities/track';
 import { Balance } from '../../entities/balance';
 import { Kline } from '../../entities/kline';
 import { Price, PositionRisk } from '../../entities/price';
@@ -116,6 +116,7 @@ export class HomeComponent implements OnInit, OnDestroy {
               positions: {} as { [key: string]: PositionRisk },
               prices: [] as Price[],
               balance: {} as Balance,
+              lastEntries: [] as LastEntry[],
             });
           }
 
@@ -128,12 +129,13 @@ export class HomeComponent implements OnInit, OnDestroy {
             positions: this.priceService.getPositions(),
             prices: this.priceService.getPrices(),
             balance: this.balanceService.getBalance(),
+            lastEntries: this.tracksService.getLastEntries(),
           });
         }),
         takeUntil(this.destroy$),
       )
       .subscribe({
-        next: ({ tracks, positions, prices, balance }) => {
+        next: ({ tracks, positions, prices, balance, lastEntries }) => {
           const uniqueTracks = Array.from(
             new Map(tracks.map((item) => [item.symbol, item])).values(),
           );
@@ -168,7 +170,15 @@ export class HomeComponent implements OnInit, OnDestroy {
           this.balance = balance;
 
           // @ts-ignore
-          this.tracks = [...positionTracks, ...restTracks];
+          this.tracks = [...positionTracks, ...restTracks].map((item) => {
+            if (item.highPrices && item.highPrices.length) {
+              return {
+                ...item,
+                middlePrice: Math.max(...(item.highPrices ? item.highPrices : [])),
+              };
+            }
+            return { ...item, middlePrice: Math.min(...(item.lowPrices ? item.lowPrices : [])) };
+          });
 
           this.isLoadingTracks = false;
         },
