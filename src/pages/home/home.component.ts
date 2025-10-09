@@ -28,8 +28,10 @@ import {
   BinanceWebSocketService,
   BinanceBalanceService,
   BinanceKlineService,
+  BinanceOrderService,
 } from '../../services';
 import { Track, LastEntry } from '../../entities/track';
+import { Order } from '../../entities/order';
 import { Balance } from '../../entities/balance';
 import { Kline } from '../../entities/kline';
 import { Price, PositionRisk } from '../../entities/price';
@@ -65,6 +67,7 @@ import { BTCUSDT } from '../../constants';
     BinancePriceService,
     BinanceBalanceService,
     BinanceKlineService,
+    BinanceOrderService,
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
@@ -101,6 +104,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     private wsService: BinanceWebSocketService,
     private priceService: BinancePriceService,
     private balanceService: BinanceBalanceService,
+    private orderService: BinanceOrderService,
     private klineService: BinanceKlineService,
   ) {}
 
@@ -117,6 +121,7 @@ export class HomeComponent implements OnInit, OnDestroy {
               prices: [] as Price[],
               balance: {} as Balance,
               lastEntries: [] as LastEntry[],
+              orders: [] as Order[],
             });
           }
 
@@ -130,12 +135,13 @@ export class HomeComponent implements OnInit, OnDestroy {
             prices: this.priceService.getPrices(),
             balance: this.balanceService.getBalance(),
             lastEntries: this.tracksService.getLastEntries(),
+            orders: this.orderService.getOpenOrders(),
           });
         }),
         takeUntil(this.destroy$),
       )
       .subscribe({
-        next: ({ tracks, positions, prices, balance, lastEntries }) => {
+        next: ({ tracks, positions, prices, balance, lastEntries, orders }) => {
           const uniqueTracks = Array.from(
             new Map(tracks.map((item) => [item.symbol, item])).values(),
           );
@@ -171,13 +177,24 @@ export class HomeComponent implements OnInit, OnDestroy {
 
           // @ts-ignore
           this.tracks = [...positionTracks, ...restTracks].map((item) => {
-            if (item.highPrices && item.highPrices.length) {
+            const el = lastEntries.find((le) => le.symbol === item.symbol);
+            const order = orders.find((le) => le.symbol === item.symbol);
+
+            if (el && el.highPrices && el.highPrices.length) {
               return {
                 ...item,
-                middlePrice: Math.max(...(item.highPrices ? item.highPrices : [])),
+                middlePrice: Math.max(...el.highPrices),
+                stopPrice: +(order?.stopPrice ?? 0),
               };
             }
-            return { ...item, middlePrice: Math.min(...(item.lowPrices ? item.lowPrices : [])) };
+            if (el && el.lowPrices && el.lowPrices.length) {
+              return {
+                ...item,
+                middlePrice: Math.min(...el.lowPrices),
+                stopPrice: +(order?.stopPrice ?? 0),
+              };
+            }
+            return { ...item, stopPrice: +(order?.stopPrice ?? 0) };
           });
 
           this.isLoadingTracks = false;

@@ -18,6 +18,7 @@ export interface Track {
   positionAmt?: string;
   entryPrice?: string;
   middlePrice?: number;
+  stopPrice?: number;
 }
 
 export interface LastEntry {

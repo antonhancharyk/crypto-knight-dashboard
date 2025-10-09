@@ -7,17 +7,19 @@
 <div class="container">
   <div class="container__info">
     <span>Positions:</span>
-    <span>{{ countPositions }}</span>
-    <span>📈{{ countLongPositions }}</span>
-    <span>📉{{ countShortPositions }}</span>
-    <span class="good-positions">{{ countGoodPositions }}</span>
+    <span>{{ countPositions }}</span
+    >| <span>📈{{ countLongPositions }}</span
+    >| <span>📉{{ countShortPositions }}</span
+    >| <span class="good-positions">{{ countGoodPositions }}</span
+    >|
     <span class="bad-positions">{{ countBadPositions }}</span>
   </div>
   <div class="container__info">
     <span>Balance:</span>
-    <span>a:{{ (+balance.availableBalance).toFixed(2) }}</span>
-    <span>b:{{ (+balance.balance).toFixed(2) }}</span>
-    <span>u:{{ (+balance.crossUnPnl).toFixed(2) }}</span>
+    <span>a:{{ (+balance.availableBalance).toFixed(2) }}</span
+    >| <span>b:{{ (+balance.balance).toFixed(2) }}</span
+    >| <span>u:{{ (+balance.crossUnPnl).toFixed(2) }}</span
+    >|
     <span>c:{{ (+balance.balance + +balance.crossUnPnl).toFixed(2) }}</span>
   </div>
   <div class="container__info">
@@ -32,6 +34,7 @@
           long: track.isOrder && isLong(track),
           short: track.isOrder && !isLong(track),
         }"
+        [ngStyle]="{ 'background-color': track.stopPrice || !track.isOrder ? '' : 'red' }"
       >
         <div class="mat-card-header">
           <div>
@@ -60,14 +63,17 @@
         </div>
 
         <div class="container_data">
-          <div *ngIf="track.highPrice > 0 || track.symbol === 'BTCUSDT'" class="price">
+          <div *ngIf="track.highPrice || track.symbol === 'BTCUSDT'" class="price">
             <mat-card-content>H: {{ track.highPrice | number: '1.2-6' }}</mat-card-content>
           </div>
-          <div *ngIf="track.lowPrice > 0 || track.symbol === 'BTCUSDT'" class="price">
+          <div *ngIf="track.lowPrice || track.symbol === 'BTCUSDT'" class="price">
             <mat-card-content>L: {{ track.lowPrice | number: '1.2-6' }}</mat-card-content>
           </div>
-          <div *ngIf="track.middlePrice && track.middlePrice > 0" class="price">
+          <div *ngIf="track.middlePrice" class="price">
             <mat-card-content>M: {{ track.middlePrice }}</mat-card-content>
+          </div>
+          <div *ngIf="track.stopPrice" class="price">
+            <mat-card-content>S: {{ track.stopPrice }}</mat-card-content>
           </div>
         </div>
       </mat-card>
@@ -76,7 +82,7 @@
         *ngIf="tracks[i].isOrder && tracks[i + 1] && !tracks[i + 1].isOrder"
         class="divider donotcross"
       >
-        Do not cross
+        Just tracks
       </div>
     </ng-container>
   </div>
