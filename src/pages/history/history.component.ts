@@ -149,16 +149,14 @@ export class HistoryComponent implements OnInit, OnDestroy {
           this.tracks = res;
           this.activeTracks = res.map((item) => {
             const date = DateTime.fromISO(item.createdAt, { zone: 'utc' });
-            const dateInZone = date.setZone('UTC+3');
-            const createdAt = dateInZone.toFormat('yyyy-MM-dd HH:mm');
+            const createdAt = date.toFormat('yyyy-MM-dd HH:mm');
 
             const dateHighCreatedAt = DateTime.fromISO(item.highCreatedAt, { zone: 'utc' });
             const dateHighCreatedAtInZone = dateHighCreatedAt.setZone('UTC+3');
             const highCreatedAt = dateHighCreatedAtInZone.toFormat('yyyy-MM-dd HH:mm');
 
             const dateLowCreatedAt = DateTime.fromISO(item.lowCreatedAt, { zone: 'utc' });
-            const dateLowCreatedAtInZone = dateLowCreatedAt.setZone('UTC+3');
-            const lowCreatedAt = dateLowCreatedAtInZone.toFormat('yyyy-MM-dd HH:mm');
+            const lowCreatedAt = dateLowCreatedAt.toFormat('yyyy-MM-dd HH:mm');
 
             let [lowStopPrice, highStopPrice] = this.getStopLossPrices(
               item.lowPrice,
