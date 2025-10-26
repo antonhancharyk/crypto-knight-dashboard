@@ -81,6 +81,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
   symbols = SYMBOLS.sort();
   symbolControl = new FormControl<string>('');
   fullControl = new FormControl(false);
+  historyControl = new FormControl(true);
   filteredSymbols: Observable<string[]> | undefined;
   tracks$: Observable<Track[]> = new Observable();
   dialog = inject(MatDialog);
@@ -136,6 +137,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
       .toFormat('yyyy-MM-dd HH:mm:ss');
     const symbol = this.symbolControl.value ?? '';
     const full = this.fullControl.value ?? true;
+    const history = this.historyControl.value ?? true;
 
     this.tracksSubscription = this.tracksService
       .getTracks({
@@ -143,6 +145,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
         to,
         symbol,
         full,
+        history,
       })
       .subscribe({
         next: (res) => {
