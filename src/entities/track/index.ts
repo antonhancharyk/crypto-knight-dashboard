@@ -19,6 +19,7 @@ export interface Track {
   entryPrice?: string;
   middlePrice?: number;
   stopPrice?: number;
+  unRealizedProfit?: string;
 }
 
 export interface LastEntry {

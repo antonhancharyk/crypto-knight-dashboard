@@ -1,6 +1,9 @@
 .container {
   height: calc(100vh - 4rem);
   padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .settings {
@@ -42,9 +45,18 @@
       right: 0;
       bottom: 0;
       height: 100%;
-      clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+      // clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+      clip-path: polygon(
+        0 36.8%,
+        50% 0,
+        100% 36.8%,
+        69.1% 36.8%,
+        69.1% 100%,
+        30.9% 100%,
+        30.9% 38.8%
+      );
       background: green;
-      opacity: 0.1;
+      opacity: 0.2;
     }
   }
 
@@ -56,9 +68,10 @@
       right: 0;
       bottom: 0;
       height: 100%;
-      clip-path: polygon(100% 0%, 50% 100%, 0% 0%);
+      // clip-path: polygon(100% 0%, 50% 100%, 0% 0%);
+      clip-path: polygon(0 63.2%, 31% 63.2%, 31% 0, 69% 0, 69% 63.2%, 100% 63.2%, 50% 100%);
       background: red;
-      opacity: 0.1;
+      opacity: 0.2;
     }
   }
 }
@@ -121,6 +134,12 @@
     height: 0;
     transform: rotate(45deg);
   }
+}
+
+.container_total_info {
+  padding: 0.5rem;
+  box-shadow: var(--mdc-elevated-card-container-elevation);
+  border-radius: 0.5rem;
 }
 
 .container__info {
