@@ -2,95 +2,95 @@
   <div class="container_spinner_over">
     <mat-spinner></mat-spinner>
   </div>
-}
-
-<div class="container">
-  <div class="container_total_info">
-    <div class="container__info">
-      <span>🚀</span>
-      <span>{{ countPositions }}</span
-      >| <span>⬆️{{ countLongPositions }}</span
-      >| <span>⬇️{{ countShortPositions }}</span
-      >| <span class="good-positions">{{ countGoodPositions }}</span
-      >|
-      <span class="bad-positions">{{ countBadPositions }}</span>
+} @else {
+  <div class="container">
+    <div class="container_total_info">
+      <div class="container__info">
+        <span>🚀</span>
+        <span>{{ countPositions }}</span
+        >| <span>⬆️{{ countLongPositions }}</span
+        >| <span>⬇️{{ countShortPositions }}</span
+        >| <span class="good-positions">{{ countGoodPositions }}</span
+        >|
+        <span class="bad-positions">{{ countBadPositions }}</span>
+      </div>
+      <div class="container__info">
+        <span>🏦</span>
+        <span>a:{{ (+balance.availableBalance).toFixed(2) }}</span
+        >| <span>b:{{ (+balance.balance).toFixed(2) }}</span
+        >| <span>u:{{ (+balance.crossUnPnl).toFixed(2) }}</span
+        >|
+        <span>c:{{ (+balance.balance + +balance.crossUnPnl).toFixed(2) }}</span>
+      </div>
+      <div class="container__info">
+        <span>🏁</span>
+        <span>{{ ((+balance.availableBalance - countPositions * 2.5) / 2 / 2.5).toFixed() }}</span>
+      </div>
     </div>
-    <div class="container__info">
-      <span>🏦</span>
-      <span>a:{{ (+balance.availableBalance).toFixed(2) }}</span
-      >| <span>b:{{ (+balance.balance).toFixed(2) }}</span
-      >| <span>u:{{ (+balance.crossUnPnl).toFixed(2) }}</span
-      >|
-      <span>c:{{ (+balance.balance + +balance.crossUnPnl).toFixed(2) }}</span>
-    </div>
-    <div class="container__info">
-      <span>🏁</span>
-      <span>{{ ((+balance.availableBalance - countPositions * 2.5) / 2 / 2.5).toFixed() }}</span>
-    </div>
-  </div>
-  <div class="tracks">
-    <ng-container *ngFor="let track of tracks; let i = index">
-      <mat-card
-        class="mat-card"
-        [ngClass]="{
-          long: track.isOrder && isLong(track),
-          short: track.isOrder && !isLong(track),
-        }"
-        [ngStyle]="{ 'background-color': track.stopPrice || !track.isOrder ? '' : 'red' }"
-      >
-        <div class="mat-card-header">
-          <div>
-            <span>
-              {{ track.symbol.slice(0, -4) }}
-            </span>
-            <span class="chart-icon" (click)="openKlineChart(track)">📈</span>
-          </div>
-          <span class="highlighted1">{{ prices[track.symbol] }}</span>
-        </div>
-
-        <div *ngIf="track.isOrder">
-          <div class="container_order_data">
-            <mat-card-content>⛩️{{ track.entryPrice | number: '1.2-6' }}</mat-card-content>
-            <div class="mat-card-header">
-              <span
-                class="highlighted1"
-                [style]="{
-                  color: getFormattedColorPositionPercentageDiff(track),
-                }"
-              >
-                {{ getFormattedPositionPercentageDiff(track) }}
+    <div class="tracks">
+      <ng-container *ngFor="let track of tracks; let i = index">
+        <mat-card
+          class="mat-card"
+          [ngClass]="{
+            long: track.isOrder && isLong(track),
+            short: track.isOrder && !isLong(track),
+          }"
+          [ngStyle]="{ 'background-color': track.stopPrice || !track.isOrder ? '' : 'red' }"
+        >
+          <div class="mat-card-header">
+            <div>
+              <span>
+                {{ track.symbol.slice(0, -4) }}
               </span>
+              <span class="chart-icon" (click)="openKlineChart(track)">📈</span>
+            </div>
+            <span class="highlighted1">{{ prices[track.symbol] }}</span>
+          </div>
+
+          <div *ngIf="track.isOrder">
+            <div class="container_order_data">
+              <mat-card-content>⛩️{{ track.entryPrice | number: '1.2-6' }}</mat-card-content>
+              <div class="mat-card-header">
+                <span
+                  class="highlighted1"
+                  [style]="{
+                    color: getFormattedColorPositionPercentageDiff(track),
+                  }"
+                >
+                  {{ getFormattedPositionPercentageDiff(track) }}
+                </span>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="container_data">
-          <div *ngIf="track.symbol !== 'BTCUSDT'" class="price">
-            <mat-card-content
-              >💵{{ +(track.unRealizedProfit || '') | number: '1.2-2' }}</mat-card-content
-            >
+          <div class="container_data">
+            <div *ngIf="track.symbol !== 'BTCUSDT'" class="price">
+              <mat-card-content
+                >💵{{ +(track.unRealizedProfit || '') | number: '1.2-2' }}</mat-card-content
+              >
+            </div>
+            <div *ngIf="track.highPrice || track.symbol === 'BTCUSDT'" class="price">
+              <mat-card-content>⬆️{{ track.highPrice | number: '1.2-6' }}</mat-card-content>
+            </div>
+            <div *ngIf="track.lowPrice || track.symbol === 'BTCUSDT'" class="price">
+              <mat-card-content>⬇️{{ track.lowPrice | number: '1.2-6' }}</mat-card-content>
+            </div>
+            <div *ngIf="track.middlePrice" class="price">
+              <mat-card-content>🎁{{ track.middlePrice | number: '1.2-6' }}</mat-card-content>
+            </div>
+            <div *ngIf="track.stopPrice" class="price">
+              <mat-card-content>🛑{{ track.stopPrice | number: '1.2-6' }}</mat-card-content>
+            </div>
           </div>
-          <div *ngIf="track.highPrice || track.symbol === 'BTCUSDT'" class="price">
-            <mat-card-content>⬆️{{ track.highPrice | number: '1.2-6' }}</mat-card-content>
-          </div>
-          <div *ngIf="track.lowPrice || track.symbol === 'BTCUSDT'" class="price">
-            <mat-card-content>⬇️{{ track.lowPrice | number: '1.2-6' }}</mat-card-content>
-          </div>
-          <div *ngIf="track.middlePrice" class="price">
-            <mat-card-content>🎁{{ track.middlePrice | number: '1.2-6' }}</mat-card-content>
-          </div>
-          <div *ngIf="track.stopPrice" class="price">
-            <mat-card-content>🛑{{ track.stopPrice | number: '1.2-6' }}</mat-card-content>
-          </div>
-        </div>
-      </mat-card>
+        </mat-card>
 
-      <div
-        *ngIf="tracks[i].isOrder && tracks[i + 1] && !tracks[i + 1].isOrder"
-        class="divider donotcross"
-      >
-        Tracks
-      </div>
-    </ng-container>
+        <div
+          *ngIf="tracks[i].isOrder && tracks[i + 1] && !tracks[i + 1].isOrder"
+          class="divider donotcross"
+        >
+          Tracks
+        </div>
+      </ng-container>
+    </div>
   </div>
-</div>
+}
