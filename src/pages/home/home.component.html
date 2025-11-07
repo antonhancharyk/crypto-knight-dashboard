@@ -64,20 +64,30 @@
           </div>
 
           <div class="container_data">
-            <div *ngIf="track.symbol !== 'BTCUSDT'" class="price">
+            <div *ngIf="track.isOrder" class="price">
+              <mat-card-content
+                >🏦{{ +(track.maintMargin || '') | number: '1.2-2' }}</mat-card-content
+              >
+            </div>
+
+            <div *ngIf="track.isOrder" class="price">
               <mat-card-content
                 >💵{{ +(track.unRealizedProfit || '') | number: '1.2-2' }}</mat-card-content
               >
             </div>
-            <div *ngIf="track.highPrice || track.symbol === 'BTCUSDT'" class="price">
+
+            <div *ngIf="track.highPrice" class="price">
               <mat-card-content>⬆️{{ track.highPrice | number: '1.2-6' }}</mat-card-content>
             </div>
-            <div *ngIf="track.lowPrice || track.symbol === 'BTCUSDT'" class="price">
+
+            <div *ngIf="track.lowPrice" class="price">
               <mat-card-content>⬇️{{ track.lowPrice | number: '1.2-6' }}</mat-card-content>
             </div>
+
             <div *ngIf="track.middlePrice" class="price">
               <mat-card-content>🎁{{ track.middlePrice | number: '1.2-6' }}</mat-card-content>
             </div>
+
             <div *ngIf="track.stopPrice" class="price">
               <mat-card-content>🛑{{ track.stopPrice | number: '1.2-6' }}</mat-card-content>
             </div>
