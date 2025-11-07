@@ -20,7 +20,7 @@ export interface Track {
   middlePrice?: number;
   stopPrice?: number;
   unRealizedProfit?: string;
-  maintMargin?: string;
+  initialMargin?: string;
 }
 
 export interface LastEntry {
