@@ -154,13 +154,6 @@ export class HistoryComponent implements OnInit, OnDestroy {
             const date = DateTime.fromISO(item.createdAt, { zone: 'utc' });
             const createdAt = date.toFormat('yyyy-MM-dd HH:mm');
 
-            const dateHighCreatedAt = DateTime.fromISO(item.highCreatedAt, { zone: 'utc' });
-            const dateHighCreatedAtInZone = dateHighCreatedAt.setZone('UTC+3');
-            const highCreatedAt = dateHighCreatedAtInZone.toFormat('yyyy-MM-dd HH:mm');
-
-            const dateLowCreatedAt = DateTime.fromISO(item.lowCreatedAt, { zone: 'utc' });
-            const lowCreatedAt = dateLowCreatedAt.toFormat('yyyy-MM-dd HH:mm');
-
             let [lowStopPrice, highStopPrice] = this.getStopLossPrices(
               item.lowPrice,
               item.highPrice,
@@ -180,8 +173,8 @@ export class HistoryComponent implements OnInit, OnDestroy {
             return {
               ...item,
               createdAt,
-              highCreatedAt,
-              lowCreatedAt,
+              // highCreatedAt,
+              // lowCreatedAt,
               lowStopPrice,
               highStopPrice,
               bgColor,

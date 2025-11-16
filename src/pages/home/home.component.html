@@ -16,15 +16,27 @@
       </div>
       <div class="container__info">
         <span>🏦</span>
-        <span>a:{{ (+balance.availableBalance).toFixed(2) }}</span
-        >| <span>b:{{ (+balance.balance).toFixed(2) }}</span
-        >| <span>u:{{ (+balance.crossUnPnl).toFixed(2) }}</span
+        <span>Available balance: {{ balance()?.availableBalance | number: '1.2-2' }}</span
+        >| <span>Balance: {{ balance()?.balance | number: '1.2-2' }}</span
+        >| <span>Unrealized: {{ balance()?.crossUnPnl | number: '1.2-2' }}</span
         >|
-        <span>c:{{ (+balance.balance + +balance.crossUnPnl).toFixed(2) }}</span>
+        <span
+          >Potential:
+          {{ +(balance()?.balance || 0) + +(balance()?.crossUnPnl || 0) | number: '1.2-2' }}</span
+        >
       </div>
       <div class="container__info">
         <span>🏁</span>
-        <span>{{ ((+balance.availableBalance - countPositions * 2.5) / 2 / 2.5).toFixed() }}</span>
+        <span
+          >Free balance: {{ distributedBalance()?.freeBalanceNewPosition | number: '1.2-2' }}</span
+        >
+        <span
+          >Available positions:
+          {{
+            (distributedBalance()?.freeBalanceNewPosition || 0) / positionSize() | number: '1.0-0'
+          }}</span
+        >
+        <span>Position size: {{ positionSize() | number: '1.2-2' }}</span>
       </div>
     </div>
     <div class="tracks">

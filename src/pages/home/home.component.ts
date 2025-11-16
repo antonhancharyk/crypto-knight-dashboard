@@ -1,5 +1,5 @@
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { Observable, Subject, forkJoin, Subscription, of } from 'rxjs';
+import { Component, OnDestroy, OnInit, inject, signal, computed, effect } from '@angular/core';
+import { Subject, forkJoin, Subscription, of } from 'rxjs';
 import { switchMap, takeUntil, map } from 'rxjs/operators';
 import { MatCardModule } from '@angular/material/card';
 import { DateTime } from 'luxon';
@@ -37,7 +37,15 @@ import { Kline } from '../../entities/kline';
 import { Price, PositionRisk } from '../../entities/price';
 import { KlineSeriesChartComponent } from '../../features/binance/kline-series-chart/kline-series-chart.component';
 import { ModalComponent } from '../../components/modal/modal.component';
-import { BTCUSDT } from '../../constants';
+import {
+  BTCUSDT,
+  RESERVE_FACTOR,
+  NEW_POSITION_RATIO,
+  OLD_POSITION_RATIO,
+  INITIAL_POSITION_SIZE_USDT,
+  POSITION_SAFETY_FACTOR,
+  SYMBOLS,
+} from '../../constants';
 
 @Component({
   selector: 'app-home',
@@ -82,21 +90,44 @@ export class HomeComponent implements OnInit, OnDestroy {
   countShortPositions: number = 0;
   countGoodPositions: number = 0;
   countBadPositions: number = 0;
-  balance: Balance = {
-    accountAlias: '',
-    asset: '',
-    crossWalletBalance: '',
-    balance: '',
-    crossUnPnl: '',
-    availableBalance: '',
-    maxWithdrawAmount: '',
-    marginAvailable: true,
-    updateTime: 0,
-  };
+  // balanceState: Balance = {
+  //   accountAlias: '',
+  //   asset: '',
+  //   crossWalletBalance: '',
+  //   balance: '',
+  //   crossUnPnl: '',
+  //   availableBalance: '',
+  //   maxWithdrawAmount: '',
+  //   marginAvailable: true,
+  //   updateTime: 0,
+  // };
   dialog = inject(MatDialog);
   isLoadingKlines: boolean = false;
   isLoadingTracks: boolean = false;
   private klineSub?: Subscription;
+
+  balance = signal<Balance | null>(null);
+  positions = signal<PositionRisk[]>([]);
+  // symbols = signal<string[]>([]);
+
+  distributedBalance = computed(() => {
+    const bal = this.balance();
+    const pos = this.positions();
+
+    if (!bal) return null;
+
+    return this.distributeBalance(parseFloatSafe(bal.crossWalletBalance), pos);
+  });
+
+  positionSize = computed(() => {
+    const dist = this.distributedBalance();
+    const pos = this.positions();
+    const syms = SYMBOLS;
+
+    if (!dist) return 0;
+
+    return this.calculatePositionSize(dist, pos, syms);
+  });
 
   constructor(
     private tracksService: TracksServices,
@@ -107,6 +138,57 @@ export class HomeComponent implements OnInit, OnDestroy {
     private orderService: BinanceOrderService,
     private klineService: BinanceKlineService,
   ) {}
+
+  distributeBalance(balance: number, positions: PositionRisk[]) {
+    let initialMarginSum = 0;
+    let unrealizedProfitSum = 0;
+
+    positions.forEach((p) => {
+      initialMarginSum += parseFloatSafe(p.initialMargin);
+      unrealizedProfitSum += parseFloatSafe(p.unRealizedProfit);
+    });
+
+    let freeBalance = balance - initialMarginSum;
+    if (freeBalance < 0) freeBalance = 0;
+
+    const usableBalance = freeBalance * (1 - RESERVE_FACTOR);
+    const freeBalanceNewPosition = usableBalance * NEW_POSITION_RATIO;
+    const freeBalanceOldPosition = usableBalance * OLD_POSITION_RATIO;
+
+    const freeBalanceAfterClose = freeBalanceOldPosition + initialMarginSum + unrealizedProfitSum;
+
+    return {
+      freeBalanceNewPosition,
+      freeBalanceOldPosition,
+      freeBalanceAfterClose,
+    };
+  }
+
+  calculatePositionSize(
+    balance: { freeBalanceNewPosition: number },
+    positions: PositionRisk[],
+    symbols: string[],
+  ): number {
+    const positionCount = positions.length;
+    const symbolCount = symbols.length || 1;
+
+    let remainingSlots = symbolCount - positionCount;
+    if (remainingSlots < 1) remainingSlots = 1;
+
+    const initialPositionSize = INITIAL_POSITION_SIZE_USDT;
+    const minPositionSize = balance.freeBalanceNewPosition / symbolCount;
+
+    const estimatedPositionSize =
+      balance.freeBalanceNewPosition / remainingSlots / POSITION_SAFETY_FACTOR;
+
+    let positionSize = Math.max(initialPositionSize, minPositionSize, estimatedPositionSize);
+
+    if (positionSize > balance.freeBalanceNewPosition) {
+      positionSize = balance.freeBalanceNewPosition;
+    }
+
+    return Math.round(positionSize * 10) / 10;
+  }
 
   ngOnInit() {
     this.isLoadingTracks = true;
@@ -145,12 +227,10 @@ export class HomeComponent implements OnInit, OnDestroy {
           const uniqueTracks = Array.from(
             new Map(tracks.map((item) => [item.symbol, item])).values(),
           );
-
           const positionTracks = Object.values(positions).map((item) => {
             const track = uniqueTracks.find((track) => track.symbol === item.symbol);
             return { ...item, ...track, isOrder: true };
           });
-
           const restTracks = uniqueTracks
             .filter((item) => {
               return (
@@ -159,21 +239,8 @@ export class HomeComponent implements OnInit, OnDestroy {
               );
             })
             .sort((a, b) => a.symbol.localeCompare(b.symbol));
-
-          this.countPositions = positionTracks.length;
-          this.countLongPositions = positionTracks.filter((item) => +item.positionAmt > 0).length;
-          this.countShortPositions = positionTracks.filter((item) => +item.positionAmt < 0).length;
-          this.countReadyTracks = restTracks.length;
-
           // @ts-ignore
           const positions2 = positionTracks.map((item) => this.getPositionPercentageDiff(item));
-          this.countGoodPositions = positions2.filter((item) => item > 0).length;
-          this.countBadPositions = positions2.filter((item) => item < 0).length;
-
-          prices.forEach((price) => {
-            this.prices[price.symbol] = price.price;
-          });
-          this.balance = balance;
 
           // @ts-ignore
           this.tracks = [...positionTracks, ...restTracks].map((item) => {
@@ -196,6 +263,20 @@ export class HomeComponent implements OnInit, OnDestroy {
             }
             return { ...item, stopPrice: +(order?.stopPrice ?? 0) };
           });
+
+          prices.forEach((price) => {
+            this.prices[price.symbol] = price.price;
+          });
+
+          this.countGoodPositions = positions2.filter((item) => item > 0).length;
+          this.countBadPositions = positions2.filter((item) => item < 0).length;
+          this.countPositions = positionTracks.length;
+          this.countLongPositions = positionTracks.filter((item) => +item.positionAmt > 0).length;
+          this.countShortPositions = positionTracks.filter((item) => +item.positionAmt < 0).length;
+          this.countReadyTracks = restTracks.length;
+
+          this.balance.set(balance);
+          this.positions.set(positionTracks);
 
           this.isLoadingTracks = false;
         },
@@ -313,4 +394,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         },
       });
   }
+}
+
+function parseFloatSafe(value: string): number {
+  const parsed = parseFloat(value);
+  return isNaN(parsed) ? 0 : parsed;
 }
