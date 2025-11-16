@@ -1,23 +1,25 @@
-@if (isLoadingKlines || isLoadingTracks) {
+<ng-container *ngIf="isLoadingKlines() || isLoadingTracks(); else content">
   <div class="container_spinner_over">
     <mat-spinner></mat-spinner>
   </div>
-} @else {
+</ng-container>
+
+<ng-template #content>
   <div class="container">
     <div class="container_total_info">
       <div class="container__info">
         <span>🚀</span>
-        <span>{{ countPositions }}</span
-        >| <span>⬆️{{ countLongPositions }}</span
-        >| <span>⬇️{{ countShortPositions }}</span
-        >| <span class="good-positions">{{ countGoodPositions }}</span
+        <span>{{ countPositions() }}</span
+        >| <span>⬆️{{ countLongPositions() }}</span
+        >| <span>⬇️{{ countShortPositions() }}</span
+        >| <span class="good-positions">{{ countGoodPositions() }}</span
         >|
-        <span class="bad-positions">{{ countBadPositions }}</span>
+        <span class="bad-positions">{{ countBadPositions() }}</span>
       </div>
+
       <div class="container__info">
         <span>🏦</span>
-        <span>Available balance: {{ balance()?.availableBalance | number: '1.2-2' }}</span
-        >| <span>Balance: {{ balance()?.balance | number: '1.2-2' }}</span
+        <span>Balance: {{ balance()?.balance | number: '1.2-2' }}</span
         >| <span>Unrealized: {{ balance()?.crossUnPnl | number: '1.2-2' }}</span
         >|
         <span
@@ -25,22 +27,23 @@
           {{ +(balance()?.balance || 0) + +(balance()?.crossUnPnl || 0) | number: '1.2-2' }}</span
         >
       </div>
+
       <div class="container__info">
         <span>🏁</span>
         <span
           >Free balance: {{ distributedBalance()?.freeBalanceNewPosition | number: '1.2-2' }}</span
-        >
+        >|
         <span
           >Available positions:
           {{
             (distributedBalance()?.freeBalanceNewPosition || 0) / positionSize() | number: '1.0-0'
           }}</span
-        >
-        <span>Position size: {{ positionSize() | number: '1.2-2' }}</span>
+        >| <span>Position size: {{ positionSize() | number: '1.2-2' }}</span>
       </div>
     </div>
+
     <div class="tracks">
-      <ng-container *ngFor="let track of tracks; let i = index">
+      <ng-container *ngFor="let track of tracks(); let i = index">
         <mat-card
           class="mat-card"
           [ngClass]="{
@@ -51,12 +54,10 @@
         >
           <div class="mat-card-header">
             <div>
-              <span>
-                {{ track.symbol.slice(0, -4) }}
-              </span>
+              <span>{{ track.symbol.slice(0, -4) }}</span>
               <span class="chart-icon" (click)="openKlineChart(track)">📈</span>
             </div>
-            <span class="highlighted1">{{ prices[track.symbol] }}</span>
+            <span class="highlighted1">{{ getPrice(track.symbol) }}</span>
           </div>
 
           <div *ngIf="track.isOrder">
@@ -65,9 +66,7 @@
               <div class="mat-card-header">
                 <span
                   class="highlighted1"
-                  [style]="{
-                    color: getFormattedColorPositionPercentageDiff(track),
-                  }"
+                  [style]="{ color: getFormattedColorPositionPercentageDiff(track) }"
                 >
                   {{ getFormattedPositionPercentageDiff(track) }}
                 </span>
@@ -107,7 +106,7 @@
         </mat-card>
 
         <div
-          *ngIf="tracks[i].isOrder && tracks[i + 1] && !tracks[i + 1].isOrder"
+          *ngIf="tracks()[i].isOrder && tracks()[i + 1] && !tracks()[i + 1].isOrder"
           class="divider donotcross"
         >
           Tracks
@@ -115,4 +114,4 @@
       </ng-container>
     </div>
   </div>
-}
+</ng-template>
