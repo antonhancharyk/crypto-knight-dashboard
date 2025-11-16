@@ -1,111 +1,111 @@
-@if (isLoadingTracks || isLoadingPrices) {
+<ng-container *ngIf="isLoadingTracks() || isLoadingPrices(); else content">
   <div class="container_spinner_over">
     <mat-spinner></mat-spinner>
   </div>
-}
+</ng-container>
 
-<div class="container">
-  <mat-accordion>
-    <mat-expansion-panel expanded="true">
-      <mat-expansion-panel-header>
-        <mat-panel-title> Filters </mat-panel-title>
-      </mat-expansion-panel-header>
-      <div class="filter">
-        <mat-form-field>
-          <mat-label>Date</mat-label>
-          <mat-date-range-input [formGroup]="range" [rangePicker]="picker">
-            <input matStartDate formControlName="from" placeholder="From" />
-            <input matEndDate formControlName="to" placeholder="To" />
-          </mat-date-range-input>
-          <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-          <mat-date-range-picker #picker></mat-date-range-picker>
-        </mat-form-field>
-        <mat-form-field>
-          <mat-label>Symbol</mat-label>
-          <input
-            type="text"
-            matInput
-            [formControl]="symbolControl"
-            [matAutocomplete]="auto"
-            placeholder="Enter to search"
-            (input)="transformToUppercase($event)"
-          />
-          <mat-autocomplete #auto="matAutocomplete">
-            @for (symbol of filteredSymbols | async; track symbol) {
-              <mat-option [value]="symbol">{{ symbol.slice(0, -4) }}</mat-option>
-            }
-          </mat-autocomplete>
-          <mat-icon [style]="{ cursor: 'pointer' }" matSuffix (click)="clearSymbol()"
-            >clear</mat-icon
+<ng-template #content>
+  <div class="container">
+    <mat-accordion>
+      <mat-expansion-panel [expanded]="true">
+        <mat-expansion-panel-header>
+          <mat-panel-title> Filters </mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <div class="filter">
+          <mat-form-field appearance="outline">
+            <mat-label>Date</mat-label>
+            <mat-date-range-input [formGroup]="range" [rangePicker]="picker">
+              <input matStartDate formControlName="from" placeholder="From" />
+              <input matEndDate formControlName="to" placeholder="To" />
+            </mat-date-range-input>
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-date-range-picker #picker></mat-date-range-picker>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Symbol</mat-label>
+            <input
+              type="text"
+              matInput
+              [formControl]="symbolControl"
+              [matAutocomplete]="auto"
+              placeholder="Enter to search"
+              (input)="transformToUppercase($event)"
+            />
+            <mat-autocomplete #auto="matAutocomplete">
+              <mat-option *ngFor="let symbol of filteredSymbols | async" [value]="symbol">
+                {{ symbol.slice(0, -4) }}
+              </mat-option>
+            </mat-autocomplete>
+            <mat-icon style="cursor: pointer" matSuffix (click)="clearSymbol()">clear</mat-icon>
+          </mat-form-field>
+
+          <mat-checkbox [formControl]="fullControl">Full</mat-checkbox>
+          <mat-checkbox [formControl]="historyControl">History</mat-checkbox>
+
+          <button
+            mat-stroked-button
+            color="primary"
+            (click)="handleClickGetTracks()"
+            [disabled]="isLoadingTracks()"
           >
-        </mat-form-field>
-        <mat-checkbox [formControl]="fullControl">Full</mat-checkbox>
-        <mat-checkbox [formControl]="historyControl">History</mat-checkbox>
-        <button
-          mat-stroked-button
-          color="primary"
-          (click)="handleClickGetTracks()"
-          [disabled]="isLoadingTracks"
-        >
-          Get
-        </button>
-      </div>
-    </mat-expansion-panel>
-  </mat-accordion>
-  <div class="container_tracks">
-    <div class="tracks">
-      @for (track of activeTracks; track track.symbol; let idx = $index) {
-        <mat-card
-          class="mat-card"
-          [style]="{
-            backgroundColor: track.bgColor,
-          }"
-        >
-          <div class="mat-card-header">
-            <div>
-              <span
-                [style]="{
-                  color: track.direction,
-                  fontSize: track.symbol === 'BTCUSDT' && '24px',
-                }"
-              >
-                {{ track.symbol.slice(0, -4) }}
-              </span>
-              <span class="chart-icon" (click)="openKlineChart(track)">📈</span>
-            </div>
-            <span>{{ +prices[track.symbol] }}</span>
-          </div>
+            Get
+          </button>
+        </div>
+      </mat-expansion-panel>
+    </mat-accordion>
 
-          <div class="container_data">
-            <div>
-              <mat-card-content
-                >D: {{ track.createdAt.slice(0, 10) }}
-                {{ track.createdAt.slice(11) }}</mat-card-content
-              >
-            </div>
-            <div>
-              <mat-card-content>H: {{ track.highPrice }}</mat-card-content>
-              <mat-card-content>L: {{ track.lowPrice }}</mat-card-content>
-            </div>
-            <div class="container_prices">
+    <div class="container_tracks">
+      <div class="tracks">
+        <ng-container *ngFor="let track of activeTracks(); let idx = index">
+          <mat-card class="mat-card" [style.backgroundColor]="track.bgColor">
+            <div class="mat-card-header">
               <div>
-                @for (p of track.highPrices; track p; let idxp = $index) {
-                  <mat-card-content [style.color]="getColorLevel(track.highPrices, p, idxp)"
-                    >H{{ idxp + 1 }}: {{ p }}</mat-card-content
-                  >
-                }
+                <span
+                  [style.color]="track.direction"
+                  [style.fontSize]="track.symbol === 'BTCUSDT' ? '24px' : null"
+                >
+                  {{ track.symbol.slice(0, -4) }}
+                </span>
+                <span class="chart-icon" (click)="openKlineChart(track)">📈</span>
               </div>
+              <span>{{ prices()[track.symbol] || 0 }}</span>
+            </div>
+
+            <div class="container_data">
               <div>
-                @for (p of track.lowPrices; track p; let idxp = $index) {
-                  <mat-card-content [style.color]="getColorLevel(track.lowPrices, p, idxp)"
-                    >L{{ idxp + 1 }}: {{ p }}</mat-card-content
-                  >
-                }
+                <mat-card-content>
+                  D: {{ track.createdAt.slice(0, 10) }} {{ track.createdAt.slice(11) }}
+                </mat-card-content>
+              </div>
+
+              <div>
+                <mat-card-content>H: {{ track.highPrice }}</mat-card-content>
+                <mat-card-content>L: {{ track.lowPrice }}</mat-card-content>
+              </div>
+
+              <div class="container_prices">
+                <div>
+                  <ng-container *ngFor="let p of track.highPrices; let idxp = index">
+                    <mat-card-content [style.color]="getColorLevel(track.highPrices, p, idxp)">
+                      H{{ idxp + 1 }}: {{ p }}
+                    </mat-card-content>
+                  </ng-container>
+                </div>
+
+                <div>
+                  <ng-container *ngFor="let p of track.lowPrices; let idxp = index">
+                    <mat-card-content [style.color]="getColorLevel(track.lowPrices, p, idxp)">
+                      L{{ idxp + 1 }}: {{ p }}
+                    </mat-card-content>
+                  </ng-container>
+                </div>
               </div>
             </div>
-          </div>
-        </mat-card>
-      }
+          </mat-card>
+        </ng-container>
+      </div>
     </div>
   </div>
-</div>
+</ng-template>

@@ -1,5 +1,5 @@
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { Observable, Subscription, startWith, map, Subject } from 'rxjs';
+import { Component, OnDestroy, OnInit, inject, signal, computed, effect } from '@angular/core';
+import { Observable, Subscription, startWith, map, of } from 'rxjs';
 import { MatCardModule } from '@angular/material/card';
 import { DateTime } from 'luxon';
 import { FormGroup, FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -18,6 +18,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { takeUntil } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
+import { Subject } from 'rxjs';
 
 import {
   CommonService,
@@ -35,7 +36,7 @@ import { getPriceTick, roundPrice } from '../../utils/price/price.utils';
 import { ExchangeInfo } from '../../entities/common';
 
 @Component({
-  selector: 'app-home',
+  selector: 'app-history',
   standalone: true,
   imports: [
     MatCardModule,
@@ -60,72 +61,92 @@ import { ExchangeInfo } from '../../entities/common';
     provideNativeDateAdapter(),
     BinancePriceService,
     BinanceKlineService,
+    ExchangeInfoService,
   ],
   templateUrl: './history.component.html',
   styleUrl: './history.component.scss',
 })
 export class HistoryComponent implements OnInit, OnDestroy {
+  // services (injected)
+  private tracksService = inject(TracksServices);
+  private binancePriceService = inject(BinancePriceService);
+  private klineService = inject(BinanceKlineService);
+  private exchangeInfoService = inject(ExchangeInfoService);
+  private dialog = inject(MatDialog);
+
+  // cleanup
   private destroy$ = new Subject<void>();
-  private tracksSubscription: Subscription = new Subscription();
-  private pricesSubscription: Subscription = new Subscription();
-  tracks: Track[] = [];
-  activeTracks: Track[] = [];
-  orderTracks: Track[] = [];
+  private subs = new Subscription();
+
+  // signals
+  tracks = signal<Track[]>([]);
+  activeTracks = signal<Track[]>([]);
+  orderTracks = signal<Track[]>([]);
+  prices = signal<Record<string, number>>({});
+  isLoadingTracks = signal(false);
+  isLoadingPrices = signal(false);
+  isLoadingKlines = signal(false);
+  exchangeInfo = signal<ExchangeInfo>({
+    timezone: '',
+    serverTime: 0,
+    symbols: [],
+  });
+
+  // reactive form controls (keep them as FormControl for template bindings)
   range = new FormGroup({
     from: new FormControl<Date | null>(new Date()),
     to: new FormControl<Date | null>(new Date()),
   });
-  isLoadingTracks: boolean = false;
-  isLoadingPrices: boolean = false;
-  prices: { [key: string]: number } = {};
-  symbols = SYMBOLS.sort();
-  symbolControl = new FormControl<string>('');
-  fullControl = new FormControl(false);
-  historyControl = new FormControl(true);
-  filteredSymbols: Observable<string[]> | undefined;
-  tracks$: Observable<Track[]> = new Observable();
-  dialog = inject(MatDialog);
-  isLoadingKlines: boolean = false;
-  private klineSub?: Subscription;
-  exchangeInfo: ExchangeInfo = {
-    timezone: '',
-    serverTime: 0,
-    symbols: [],
-  };
 
-  constructor(
-    private tracksService: TracksServices,
-    private binancePriceService: BinancePriceService,
-    private klineService: BinanceKlineService,
-    private exchangeInfoService: ExchangeInfoService,
-  ) {}
+  symbols = signal<string[]>(SYMBOLS.slice().sort());
+  symbolControl = new FormControl<string>('');
+  fullControl = new FormControl<boolean>(false);
+  historyControl = new FormControl<boolean>(true);
+
+  // filtered symbols for autocomplete as Observable (valueChanges)
+  filteredSymbols: Observable<string[]> = of([]);
+
+  // kline subscription holder
+  private klineSub?: Subscription;
+
+  constructor() {}
 
   ngOnInit() {
-    this.exchangeInfoService
+    // exchange info fetch
+    const exchSub = this.exchangeInfoService
       .getExchangeInfo()
       .pipe(takeUntil(this.destroy$))
-      .subscribe((exchangeInfo) => (this.exchangeInfo = exchangeInfo));
+      .subscribe({
+        next: (info) => this.exchangeInfo.set(info),
+        error: (err) => console.error('ExchangeInfo error', err),
+      });
+    this.subs.add(exchSub);
 
+    // prepare filteredSymbols observable for autocomplete
     this.filteredSymbols = this.symbolControl.valueChanges.pipe(
       startWith(''),
       map((value) => this._filter(value || '')),
     );
+
+    // effect: when exchangeInfo updates, update symbols tick rounding if needed
+    effect(() => {
+      // ensures computed subscription - when exchangeInfo changes, we can recalc activeTracks rounding when fetching next time
+      const _ = this.exchangeInfo();
+      void _;
+    });
   }
 
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
-    this.tracksSubscription.unsubscribe();
-    this.pricesSubscription.unsubscribe();
+    this.subs.unsubscribe();
+    this.klineSub?.unsubscribe();
   }
 
-  private _filter(value: string): string[] {
-    const filterValue = value.toLowerCase();
-    return this.symbols.filter((option) => option.toLowerCase().includes(filterValue));
-  }
+  // -------------------- API calls (use signals) --------------------
 
   getTracks() {
-    this.isLoadingTracks = true;
+    this.isLoadingTracks.set(true);
 
     const from = DateTime.fromJSDate(this.range.value?.from ?? new Date())
       .startOf('day')
@@ -135,11 +156,12 @@ export class HistoryComponent implements OnInit, OnDestroy {
       .endOf('day')
       .minus({ hours: 3 })
       .toFormat('yyyy-MM-dd HH:mm:ss');
+
     const symbol = this.symbolControl.value ?? '';
     const full = this.fullControl.value ?? true;
     const history = this.historyControl.value ?? true;
 
-    this.tracksSubscription = this.tracksService
+    const tracksSub = this.tracksService
       .getTracks({
         from,
         to,
@@ -147,93 +169,134 @@ export class HistoryComponent implements OnInit, OnDestroy {
         full,
         history,
       })
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
-          this.tracks = res;
-          this.activeTracks = res.map((item) => {
+          // set raw tracks
+          this.tracks.set(res || []);
+
+          // transform tracks to display-ready activeTracks
+          const transformed = (res || []).map((item) => {
+            // createdAt in readable format (UTC -> local-like)
             const date = DateTime.fromISO(item.createdAt, { zone: 'utc' });
             const createdAt = date.toFormat('yyyy-MM-dd HH:mm');
 
+            // stop loss candidates: lowStopPrice, highStopPrice
             let [lowStopPrice, highStopPrice] = this.getStopLossPrices(
               item.lowPrice,
               item.highPrice,
             );
 
-            const hour = new Date(createdAt).getHours();
-            const bgColor = hour % 2 === 0 ? '#e0e0e0' : '#c0d6e4';
-
-            const tickSize = getPriceTick(this.exchangeInfo, item.symbol);
+            // tick size rounding
+            const tickSize = getPriceTick(this.exchangeInfo(), item.symbol);
             lowStopPrice = roundPrice(lowStopPrice, tickSize);
             highStopPrice = roundPrice(highStopPrice, tickSize);
-            item.highPrice = roundPrice(item.highPrice, tickSize);
-            item.lowPrice = roundPrice(item.lowPrice, tickSize);
-            item.highPrices = item.highPrices.map((p) => roundPrice(p, tickSize));
-            item.lowPrices = item.lowPrices.map((p) => roundPrice(p, tickSize));
+
+            // round main extremes and arrays
+            const highPrice = roundPrice(item.highPrice, tickSize);
+            const lowPrice = roundPrice(item.lowPrice, tickSize);
+
+            const highPrices = (item.highPrices || []).map((p) => roundPrice(p, tickSize));
+            const lowPrices = (item.lowPrices || []).map((p) => roundPrice(p, tickSize));
+
+            // alternating background color for cards (simple heuristic)
+            const hour = new Date(createdAt).getHours();
+            const bgColor = hour % 2 === 0 ? '#e0e0e0' : '#c0d6e4';
 
             return {
               ...item,
               createdAt,
-              // highCreatedAt,
-              // lowCreatedAt,
               lowStopPrice,
               highStopPrice,
+              highPrice,
+              lowPrice,
+              highPrices,
+              lowPrices,
               bgColor,
+            } as Track & {
+              createdAt?: string;
+              lowStopPrice?: number;
+              highStopPrice?: number;
+              highPrices?: number[];
+              lowPrices?: number[];
+              bgColor?: string;
             };
           });
-          this.orderTracks = this.activeTracks.filter((item) => item.isOrder);
 
-          this.isLoadingTracks = false;
+          this.activeTracks.set(transformed);
+          this.orderTracks.set(transformed.filter((t) => t.isOrder));
+          this.isLoadingTracks.set(false);
 
+          // after we get tracks, fetch current prices to decorate them with direction
           this.getPrices();
         },
         error: (err) => {
-          this.isLoadingTracks = false;
-          console.error(err);
+          console.error('getTracks error', err);
+          this.isLoadingTracks.set(false);
         },
       });
+
+    this.subs.add(tracksSub);
   }
 
   getPrices() {
-    this.isLoadingPrices = true;
+    this.isLoadingPrices.set(true);
 
-    this.pricesSubscription = this.binancePriceService.getPrices().subscribe({
-      next: (prices) => {
-        prices.forEach((price) => {
-          this.prices[price.symbol] = price.price;
+    const pricesSub = this.binancePriceService
+      .getPrices()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (pricesArr) => {
+          const current = { ...(this.prices() || {}) };
+          const active = this.activeTracks().slice();
 
-          const track = this.activeTracks.find((item) => {
-            return item.symbol === price.symbol;
+          pricesArr.forEach((p) => {
+            current[p.symbol] = p.price;
+
+            // find track and set direction if needed
+            const idx = active.findIndex((t) => t.symbol === p.symbol);
+            if (idx !== -1) {
+              const track = active[idx];
+              // track.highPrice and lowPrice may be undefined or rounded earlier
+              if (track.highPrice && track.highPrice > 0) {
+                const q3 = track.highPrice - (track.highPrice * Q1) / 100;
+                if (p.price >= q3) {
+                  track.direction = 'green';
+                }
+              }
+              if (track.lowPrice && track.lowPrice > 0) {
+                const q1 = track.lowPrice + (track.lowPrice * Q1) / 100;
+                if (p.price <= q1) {
+                  track.direction = 'red';
+                }
+              }
+              // write back to active array
+              active[idx] = track;
+            }
           });
-          if (track) {
-            if (track.highPrice > 0) {
-              const q3 = track.highPrice - (track.highPrice * Q1) / 100;
-              if (price.price >= q3) {
-                track.direction = 'green';
-              }
-            }
-            if (track.lowPrice > 0) {
-              const q1 = track.lowPrice + (track.lowPrice * Q1) / 100;
-              if (price.price <= q1) {
-                track.direction = 'red';
-              }
-            }
-          }
-        });
 
-        this.isLoadingPrices = false;
-      },
-      error: (err) => {
-        this.isLoadingPrices = false;
-        console.error(err);
-      },
-    });
+          // update signals
+          this.prices.set(current);
+          this.activeTracks.set(active);
+          this.isLoadingPrices.set(false);
+        },
+        error: (err) => {
+          console.error('getPrices error', err);
+          this.isLoadingPrices.set(false);
+        },
+      });
+
+    this.subs.add(pricesSub);
   }
+
+  // -------------------- UI actions & helpers --------------------
 
   handleClickGetTracks() {
     this.getTracks();
   }
 
   private getStopLossPrices(lowPrice: number, highPrice: number) {
+    // original behavior: low + 3%, high - 3%
     return [lowPrice + (lowPrice * 3) / 100, highPrice - (highPrice * 3) / 100];
   }
 
@@ -247,26 +310,22 @@ export class HistoryComponent implements OnInit, OnDestroy {
     this.symbolControl.setValue(input.value);
   }
 
-  getColorLevel(prices: number[], price: number, idx: number): string {
-    if (idx > 2) {
-      return '';
-    }
+  getColorLevel(pricesArr: number[], price: number, idx: number): string {
+    if (!pricesArr || pricesArr.length === 0) return '';
+    if (idx > 2) return '';
 
-    const max = Math.max(...prices.slice(0, 3));
-    const min = Math.min(...prices.slice(0, 3));
-    if (max === price) {
-      return 'green';
-    }
-    if (min === price) {
-      return 'red';
-    }
+    const top = pricesArr.slice(0, 3);
+    const max = Math.max(...top);
+    const min = Math.min(...top);
+    if (max === price) return 'green';
+    if (min === price) return 'red';
     return '';
   }
 
   openKlineChart(item: Track) {
+    // unsubscribe previous
     this.klineSub?.unsubscribe();
-
-    this.isLoadingKlines = true;
+    this.isLoadingKlines.set(true);
 
     this.klineSub = this.klineService
       .getKlines(item.symbol)
@@ -279,17 +338,26 @@ export class HistoryComponent implements OnInit, OnDestroy {
               componentInputs: {
                 klines,
                 track: item,
-                current: this.prices[item.symbol],
+                current: this.prices()[item.symbol],
               },
             },
           });
         },
-        error: () => {
-          this.isLoadingKlines = false;
+        error: (err) => {
+          console.error('kline error', err);
+          this.isLoadingKlines.set(false);
         },
         complete: () => {
-          this.isLoadingKlines = false;
+          this.isLoadingKlines.set(false);
         },
       });
+
+    if (this.klineSub) this.subs.add(this.klineSub);
+  }
+
+  // autocomplete filter (used by filteredSymbols)
+  private _filter(value: string): string[] {
+    const filterValue = value.toLowerCase();
+    return (this.symbols() || []).filter((option) => option.toLowerCase().includes(filterValue));
   }
 }
