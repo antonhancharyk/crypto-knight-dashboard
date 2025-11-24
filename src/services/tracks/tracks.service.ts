@@ -9,15 +9,10 @@ interface TrackResponse {
   symbol: string;
   high_price: number;
   low_price: number;
-  causes: string[];
   created_at: string;
   is_order: boolean;
-  high_created_at: string;
-  low_created_at: string;
   high_prices: number[];
   low_prices: number[];
-  take_profit_high_prices: number[];
-  take_profit_low_prices: number[];
 }
 
 interface LastEntriesResponse {
@@ -34,6 +29,7 @@ interface GetTracksParams {
   symbol: string;
   full: boolean;
   history?: boolean;
+  interval?: string;
 }
 
 @Injectable()
@@ -60,14 +56,9 @@ export class TracksServices {
           highPrice: track.high_price,
           lowPrice: track.low_price,
           createdAt: track.created_at,
-          causes: track.causes ?? [],
           isOrder: track.is_order ?? false,
-          highCreatedAt: track.high_created_at ?? '',
-          lowCreatedAt: track.low_created_at ?? '',
           highPrices: track.high_prices,
           lowPrices: track.low_prices,
-          takeProfitHighPrices: track.take_profit_high_prices ?? [],
-          takeProfitLowPrices: track.take_profit_low_prices ?? [],
         }));
       }),
     );

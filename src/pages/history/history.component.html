@@ -41,6 +41,15 @@
             <mat-icon style="cursor: pointer" matSuffix (click)="clearSymbol()">clear</mat-icon>
           </mat-form-field>
 
+          <mat-form-field appearance="outline">
+            <mat-label>Interval</mat-label>
+            <mat-select [formControl]="intervalControl">
+              <mat-option *ngFor="let t of intervals" [value]="t">
+                {{ t }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
           <mat-checkbox [formControl]="fullControl">Full</mat-checkbox>
           <mat-checkbox [formControl]="historyControl">History</mat-checkbox>
 

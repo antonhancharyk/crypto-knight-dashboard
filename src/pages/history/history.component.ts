@@ -67,18 +67,15 @@ import { ExchangeInfo } from '../../entities/common';
   styleUrl: './history.component.scss',
 })
 export class HistoryComponent implements OnInit, OnDestroy {
-  // services (injected)
   private tracksService = inject(TracksServices);
   private binancePriceService = inject(BinancePriceService);
   private klineService = inject(BinanceKlineService);
   private exchangeInfoService = inject(ExchangeInfoService);
   private dialog = inject(MatDialog);
 
-  // cleanup
   private destroy$ = new Subject<void>();
   private subs = new Subscription();
 
-  // signals
   tracks = signal<Track[]>([]);
   activeTracks = signal<Track[]>([]);
   orderTracks = signal<Track[]>([]);
@@ -92,7 +89,6 @@ export class HistoryComponent implements OnInit, OnDestroy {
     symbols: [],
   });
 
-  // reactive form controls (keep them as FormControl for template bindings)
   range = new FormGroup({
     from: new FormControl<Date | null>(new Date()),
     to: new FormControl<Date | null>(new Date()),
@@ -102,17 +98,17 @@ export class HistoryComponent implements OnInit, OnDestroy {
   symbolControl = new FormControl<string>('');
   fullControl = new FormControl<boolean>(false);
   historyControl = new FormControl<boolean>(true);
+  intervalControl = new FormControl<string>('1h');
 
-  // filtered symbols for autocomplete as Observable (valueChanges)
   filteredSymbols: Observable<string[]> = of([]);
 
-  // kline subscription holder
   private klineSub?: Subscription;
+
+  intervals = ['15m', '30m', '1h', '4h', '1d'];
 
   constructor() {}
 
   ngOnInit() {
-    // exchange info fetch
     const exchSub = this.exchangeInfoService
       .getExchangeInfo()
       .pipe(takeUntil(this.destroy$))
@@ -122,15 +118,12 @@ export class HistoryComponent implements OnInit, OnDestroy {
       });
     this.subs.add(exchSub);
 
-    // prepare filteredSymbols observable for autocomplete
     this.filteredSymbols = this.symbolControl.valueChanges.pipe(
       startWith(''),
       map((value) => this._filter(value || '')),
     );
 
-    // effect: when exchangeInfo updates, update symbols tick rounding if needed
     effect(() => {
-      // ensures computed subscription - when exchangeInfo changes, we can recalc activeTracks rounding when fetching next time
       const _ = this.exchangeInfo();
       void _;
     });
@@ -142,8 +135,6 @@ export class HistoryComponent implements OnInit, OnDestroy {
     this.subs.unsubscribe();
     this.klineSub?.unsubscribe();
   }
-
-  // -------------------- API calls (use signals) --------------------
 
   getTracks() {
     this.isLoadingTracks.set(true);
@@ -161,45 +152,44 @@ export class HistoryComponent implements OnInit, OnDestroy {
     const full = this.fullControl.value ?? true;
     const history = this.historyControl.value ?? true;
 
+    let params = {
+      from,
+      to,
+      symbol,
+      full,
+      history,
+    };
+    if (history) {
+      //@ts-ignore
+      params = { ...params, interval: this.intervalControl.value };
+    }
+
     const tracksSub = this.tracksService
-      .getTracks({
-        from,
-        to,
-        symbol,
-        full,
-        history,
-      })
+      .getTracks(params)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
-          // set raw tracks
           this.tracks.set(res || []);
 
-          // transform tracks to display-ready activeTracks
           const transformed = (res || []).map((item) => {
-            // createdAt in readable format (UTC -> local-like)
             const date = DateTime.fromISO(item.createdAt, { zone: 'utc' });
             const createdAt = date.toFormat('yyyy-MM-dd HH:mm');
 
-            // stop loss candidates: lowStopPrice, highStopPrice
             let [lowStopPrice, highStopPrice] = this.getStopLossPrices(
               item.lowPrice,
               item.highPrice,
             );
 
-            // tick size rounding
             const tickSize = getPriceTick(this.exchangeInfo(), item.symbol);
             lowStopPrice = roundPrice(lowStopPrice, tickSize);
             highStopPrice = roundPrice(highStopPrice, tickSize);
 
-            // round main extremes and arrays
             const highPrice = roundPrice(item.highPrice, tickSize);
             const lowPrice = roundPrice(item.lowPrice, tickSize);
 
             const highPrices = (item.highPrices || []).map((p) => roundPrice(p, tickSize));
             const lowPrices = (item.lowPrices || []).map((p) => roundPrice(p, tickSize));
 
-            // alternating background color for cards (simple heuristic)
             const hour = new Date(createdAt).getHours();
             const bgColor = hour % 2 === 0 ? '#e0e0e0' : '#c0d6e4';
 
@@ -227,7 +217,6 @@ export class HistoryComponent implements OnInit, OnDestroy {
           this.orderTracks.set(transformed.filter((t) => t.isOrder));
           this.isLoadingTracks.set(false);
 
-          // after we get tracks, fetch current prices to decorate them with direction
           this.getPrices();
         },
         error: (err) => {
@@ -253,11 +242,9 @@ export class HistoryComponent implements OnInit, OnDestroy {
           pricesArr.forEach((p) => {
             current[p.symbol] = p.price;
 
-            // find track and set direction if needed
             const idx = active.findIndex((t) => t.symbol === p.symbol);
             if (idx !== -1) {
               const track = active[idx];
-              // track.highPrice and lowPrice may be undefined or rounded earlier
               if (track.highPrice && track.highPrice > 0) {
                 const q3 = track.highPrice - (track.highPrice * Q1) / 100;
                 if (p.price >= q3) {
@@ -270,12 +257,10 @@ export class HistoryComponent implements OnInit, OnDestroy {
                   track.direction = 'red';
                 }
               }
-              // write back to active array
               active[idx] = track;
             }
           });
 
-          // update signals
           this.prices.set(current);
           this.activeTracks.set(active);
           this.isLoadingPrices.set(false);
@@ -289,14 +274,11 @@ export class HistoryComponent implements OnInit, OnDestroy {
     this.subs.add(pricesSub);
   }
 
-  // -------------------- UI actions & helpers --------------------
-
   handleClickGetTracks() {
     this.getTracks();
   }
 
   private getStopLossPrices(lowPrice: number, highPrice: number) {
-    // original behavior: low + 3%, high - 3%
     return [lowPrice + (lowPrice * 3) / 100, highPrice - (highPrice * 3) / 100];
   }
 
@@ -323,7 +305,6 @@ export class HistoryComponent implements OnInit, OnDestroy {
   }
 
   openKlineChart(item: Track) {
-    // unsubscribe previous
     this.klineSub?.unsubscribe();
     this.isLoadingKlines.set(true);
 
@@ -355,7 +336,6 @@ export class HistoryComponent implements OnInit, OnDestroy {
     if (this.klineSub) this.subs.add(this.klineSub);
   }
 
-  // autocomplete filter (used by filteredSymbols)
   private _filter(value: string): string[] {
     const filterValue = value.toLowerCase();
     return (this.symbols() || []).filter((option) => option.toLowerCase().includes(filterValue));
