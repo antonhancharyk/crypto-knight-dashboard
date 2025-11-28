@@ -104,7 +104,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
 
   private klineSub?: Subscription;
 
-  intervals = ['15m', '30m', '1h', '4h', '1d'];
+  intervals = ['30m', '1h', '4h'];
 
   constructor() {}
 
