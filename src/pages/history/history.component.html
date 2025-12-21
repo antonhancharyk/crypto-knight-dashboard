@@ -69,15 +69,12 @@
           <mat-card class="mat-card" [style.backgroundColor]="track.bgColor">
             <div class="mat-card-header">
               <div>
-                <span
-                  [style.color]="track.direction"
-                  [style.fontSize]="track.symbol === 'BTCUSDT' ? '24px' : null"
-                >
+                <span [style.fontSize]="track.symbol === 'BTCUSDT' ? '24px' : null">
                   {{ track.symbol.slice(0, -4) }}
                 </span>
                 <span class="chart-icon" (click)="openKlineChart(track)">📈</span>
               </div>
-              <span>{{ prices()[track.symbol] || 0 }}</span>
+              <!-- <span>{{ prices()[track.symbol] || 0 }}</span> -->
             </div>
 
             <div class="container_data">
@@ -90,6 +87,11 @@
               <div>
                 <mat-card-content>H: {{ track.highPrice }}</mat-card-content>
                 <mat-card-content>L: {{ track.lowPrice }}</mat-card-content>
+              </div>
+
+              <div>
+                <mat-card-content>MH: {{ track.middlePriceHigh }}</mat-card-content>
+                <mat-card-content>ML: {{ track.middlePriceLow }}</mat-card-content>
               </div>
 
               <div class="container_prices">

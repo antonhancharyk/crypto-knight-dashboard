@@ -45,10 +45,10 @@
         <mat-card
           class="mat-card"
           [ngClass]="{
-            long: track.isOrder && isLong(track),
-            short: track.isOrder && !isLong(track),
+            long: track.isPosition && isLong(track),
+            short: track.isPosition && !isLong(track),
           }"
-          [ngStyle]="{ 'background-color': track.stopPrice || !track.isOrder ? '' : 'red' }"
+          [ngStyle]="{ 'background-color': track.stopPrice || !track.isPosition ? '' : 'red' }"
         >
           <div class="mat-card-header">
             <div>
@@ -58,7 +58,7 @@
             <span class="highlighted1">{{ getPrice(track.symbol) }}</span>
           </div>
 
-          <div *ngIf="track.isOrder">
+          <div *ngIf="track.isPosition">
             <div class="container_order_data">
               <mat-card-content>⛩️{{ track.entryPrice | number: '1.2-6' }}</mat-card-content>
               <div class="mat-card-header">
@@ -73,13 +73,13 @@
           </div>
 
           <div class="container_data">
-            <div *ngIf="track.isOrder" class="price">
+            <div *ngIf="track.isPosition" class="price">
               <mat-card-content
                 >🏦{{ +(track.initialMargin || '') | number: '1.2-2' }}</mat-card-content
               >
             </div>
 
-            <div *ngIf="track.isOrder" class="price">
+            <div *ngIf="track.isPosition" class="price">
               <mat-card-content
                 >💵{{ +(track.unRealizedProfit || '') | number: '1.2-2' }}</mat-card-content
               >
@@ -104,7 +104,7 @@
         </mat-card>
 
         <div
-          *ngIf="tracks()[i].isOrder && tracks()[i + 1] && !tracks()[i + 1].isOrder"
+          *ngIf="tracks()[i].isPosition && tracks()[i + 1] && !tracks()[i + 1].isPosition"
           class="divider donotcross"
         >
           Tracks

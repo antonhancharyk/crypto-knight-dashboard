@@ -9,10 +9,11 @@ interface TrackResponse {
   symbol: string;
   high_price: number;
   low_price: number;
-  created_at: string;
-  is_order: boolean;
   high_prices: number[];
   low_prices: number[];
+  middle_price_high: number;
+  middle_price_low: number;
+  created_at: string;
 }
 
 interface LastEntriesResponse {
@@ -55,10 +56,12 @@ export class TracksServices {
           symbol: track.symbol,
           highPrice: track.high_price,
           lowPrice: track.low_price,
-          createdAt: track.created_at,
-          isOrder: track.is_order ?? false,
           highPrices: track.high_prices,
           lowPrices: track.low_prices,
+          middlePriceHigh: track.middle_price_high,
+          middlePriceLow: track.middle_price_low,
+          createdAt: track.created_at,
+          isPosition: false,
         }));
       }),
     );

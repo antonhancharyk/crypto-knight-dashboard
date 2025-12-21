@@ -2,9 +2,10 @@ export interface Track {
   symbol: string;
   highPrice: number;
   lowPrice: number;
-  createdAt: string;
+  middlePriceHigh: number;
+  middlePriceLow: number;
   direction?: 'green' | 'red';
-  isOrder: boolean;
+  isPosition: boolean;
   highPrices: number[];
   lowPrices: number[];
   bgColor?: string;
@@ -14,6 +15,7 @@ export interface Track {
   stopPrice?: number;
   unRealizedProfit?: string;
   initialMargin?: string;
+  createdAt: string;
 }
 
 export interface LastEntry {

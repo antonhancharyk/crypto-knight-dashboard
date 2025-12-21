@@ -78,7 +78,6 @@ export class HistoryComponent implements OnInit, OnDestroy {
 
   tracks = signal<Track[]>([]);
   activeTracks = signal<Track[]>([]);
-  orderTracks = signal<Track[]>([]);
   prices = signal<Record<string, number>>({});
   isLoadingTracks = signal(false);
   isLoadingPrices = signal(false);
@@ -98,13 +97,13 @@ export class HistoryComponent implements OnInit, OnDestroy {
   symbolControl = new FormControl<string>('');
   fullControl = new FormControl<boolean>(false);
   historyControl = new FormControl<boolean>(true);
-  intervalControl = new FormControl<string>('1h');
+  intervalControl = new FormControl<string>('30m');
 
   filteredSymbols: Observable<string[]> = of([]);
 
   private klineSub?: Subscription;
 
-  intervals = ['30m', '1h', '4h'];
+  intervals = ['30m', '1h'];
 
   constructor() {}
 
@@ -187,8 +186,8 @@ export class HistoryComponent implements OnInit, OnDestroy {
             const highPrice = roundPrice(item.highPrice, tickSize);
             const lowPrice = roundPrice(item.lowPrice, tickSize);
 
-            const highPrices = (item.highPrices || []).map((p) => roundPrice(p, tickSize));
-            const lowPrices = (item.lowPrices || []).map((p) => roundPrice(p, tickSize));
+            const highPrices = item.highPrices.map((p) => roundPrice(p, tickSize));
+            const lowPrices = item.lowPrices.map((p) => roundPrice(p, tickSize));
 
             const hour = new Date(createdAt).getHours();
             const bgColor = hour % 2 === 0 ? '#e0e0e0' : '#c0d6e4';
@@ -196,25 +195,15 @@ export class HistoryComponent implements OnInit, OnDestroy {
             return {
               ...item,
               createdAt,
-              lowStopPrice,
-              highStopPrice,
               highPrice,
               lowPrice,
               highPrices,
               lowPrices,
               bgColor,
-            } as Track & {
-              createdAt?: string;
-              lowStopPrice?: number;
-              highStopPrice?: number;
-              highPrices?: number[];
-              lowPrices?: number[];
-              bgColor?: string;
             };
           });
 
           this.activeTracks.set(transformed);
-          this.orderTracks.set(transformed.filter((t) => t.isOrder));
           this.isLoadingTracks.set(false);
 
           this.getPrices();
@@ -237,32 +226,11 @@ export class HistoryComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (pricesArr) => {
           const current = { ...(this.prices() || {}) };
-          const active = this.activeTracks().slice();
-
           pricesArr.forEach((p) => {
             current[p.symbol] = p.price;
-
-            const idx = active.findIndex((t) => t.symbol === p.symbol);
-            if (idx !== -1) {
-              const track = active[idx];
-              if (track.highPrice && track.highPrice > 0) {
-                const q3 = track.highPrice - (track.highPrice * Q1) / 100;
-                if (p.price >= q3) {
-                  track.direction = 'green';
-                }
-              }
-              if (track.lowPrice && track.lowPrice > 0) {
-                const q1 = track.lowPrice + (track.lowPrice * Q1) / 100;
-                if (p.price <= q1) {
-                  track.direction = 'red';
-                }
-              }
-              active[idx] = track;
-            }
           });
 
           this.prices.set(current);
-          this.activeTracks.set(active);
           this.isLoadingPrices.set(false);
         },
         error: (err) => {

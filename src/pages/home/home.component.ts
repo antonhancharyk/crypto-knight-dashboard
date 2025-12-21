@@ -129,14 +129,14 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   countGoodPositions = computed(() => {
     const diffs = this.tracks()
-      .filter((t) => t.isOrder)
+      .filter((t) => t.isPosition)
       .map((t) => this.getPositionPercentageDiff(t));
     return diffs.filter((d) => d > 0).length;
   });
 
   countBadPositions = computed(() => {
     const diffs = this.tracks()
-      .filter((t) => t.isOrder)
+      .filter((t) => t.isPosition)
       .map((t) => this.getPositionPercentageDiff(t));
     return diffs.filter((d) => d < 0).length;
   });
@@ -184,7 +184,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
           const positionTracks = Object.values(positions).map((item) => {
             const track = uniqueTracks.find((t) => t.symbol === item.symbol);
-            return { ...item, ...track, isOrder: true } as Track & PositionRisk;
+            return { ...item, ...track, isPosition: true } as Track & PositionRisk;
           });
 
           const restTracks = uniqueTracks
@@ -204,6 +204,7 @@ export class HomeComponent implements OnInit, OnDestroy {
                 ...item,
                 middlePrice: Math.max(...el.highPrices),
                 stopPrice: +(order?.stopPrice ?? 0),
+                isPosition: !!positions[el.symbol],
               };
             }
             if (el && el.lowPrices && el.lowPrices.length) {
@@ -211,6 +212,7 @@ export class HomeComponent implements OnInit, OnDestroy {
                 ...item,
                 middlePrice: Math.min(...el.lowPrices),
                 stopPrice: +(order?.stopPrice ?? 0),
+                isPosition: !!positions[el.symbol],
               };
             }
             return { ...item, stopPrice: +(order?.stopPrice ?? 0) };
@@ -251,11 +253,11 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.prices.set(currentPrices);
 
         const tracks = this.tracks();
-        const positionsOnly = tracks.filter((t) => t.isOrder);
+        const positionsOnly = tracks.filter((t) => t.isPosition);
         const sortedPositions = positionsOnly
           .slice()
           .sort((a, b) => this.getPositionPercentageDiff(b) - this.getPositionPercentageDiff(a));
-        const rest = tracks.filter((t) => !t.isOrder);
+        const rest = tracks.filter((t) => !t.isPosition);
         const btc = [...sortedPositions, ...rest].find((t) => t.symbol === BTCUSDT);
         const ordered = btc
           ? [btc, ...[...sortedPositions, ...rest].filter((t) => t.symbol !== BTCUSDT)]
