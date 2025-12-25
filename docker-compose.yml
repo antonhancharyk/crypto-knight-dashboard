@@ -1,26 +1,11 @@
-version: '3'
+version: "3.9"
 services:
-  certbot:
-    container_name: certbot
-    image: certbot/certbot
-    volumes:
-      - ./certs:/etc/letsencrypt
-      - ./certs:/var/www/certbot
-      - ./config/certbot/start_certbot.sh:/start_certbot.sh
-    entrypoint: /start_certbot.sh
-    environment:
-      - CERTBOT_EMAIL=ant.goncharik.development@gmail.com
-      - CERTBOT_DOMAIN=crypto-knight.site
-
-  app:
-    container_name: app
+  frontend:
+    container_name: frontend
     image: antgoncharik/crypto-knight-dashboard
-    ports:
-      - '80:80'
-      - '443:443'
     restart: always
-    depends_on:
-      - certbot
-    volumes:
-      - ./certs:/etc/nginx/certs
-      - ./certs:/var/www/certbot
+    networks:
+      - share-net
+networks:
+  share-net:
+    external: true
