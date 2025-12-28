@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { Track, LastEntry } from '../../entities/track';
+import { API_URI } from '../../constants';
 
 interface TrackResponse {
   symbol: string;
@@ -35,8 +36,6 @@ interface GetTracksParams {
 
 @Injectable()
 export class TracksServices {
-  private apiUrl = 'https://api.crypto-knight.site';
-
   constructor(private http: HttpClient) {}
 
   getTracks(queryParams: GetTracksParams): Observable<Track[]> {
@@ -50,7 +49,7 @@ export class TracksServices {
 
     const url = queryParams.history ? '/tracks/history' : '/tracks';
 
-    return this.http.get<TrackResponse[]>(this.apiUrl + url, { params }).pipe(
+    return this.http.get<TrackResponse[]>(API_URI + url, { params }).pipe(
       map((tracks) => {
         return tracks.map((track) => ({
           symbol: track.symbol,
@@ -68,7 +67,7 @@ export class TracksServices {
   }
 
   getLastEntries(): Observable<LastEntry[]> {
-    return this.http.get<LastEntriesResponse[]>(this.apiUrl + '/entries').pipe(
+    return this.http.get<LastEntriesResponse[]>(API_URI + '/entries').pipe(
       map((lastEntries) => {
         return lastEntries.map((lastEntry) => ({
           symbol: lastEntry.symbol,
