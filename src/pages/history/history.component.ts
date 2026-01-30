@@ -97,6 +97,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
   symbolControl = new FormControl<string>('');
   fullControl = new FormControl<boolean>(false);
   historyControl = new FormControl<boolean>(true);
+  showOnlyEntriesControl = new FormControl<boolean>(true);
   intervalControl = new FormControl<string>('30m');
 
   filteredSymbols: Observable<string[]> = of([]);
@@ -150,6 +151,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
     const symbol = this.symbolControl.value ?? '';
     const full = this.fullControl.value ?? true;
     const history = this.historyControl.value ?? true;
+    const showOnlyEntries = this.showOnlyEntriesControl.value ?? true;
 
     let params = {
       from,
@@ -157,6 +159,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
       symbol,
       full,
       history,
+      showOnlyEntries,
     };
     if (history) {
       //@ts-ignore
